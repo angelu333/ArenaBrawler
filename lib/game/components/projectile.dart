@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/game/components/enemy_bot.dart';
+import 'package:juego_happy/game/components/hit_effect.dart';
 import 'package:juego_happy/game/components/player.dart';
 import 'package:juego_happy/game/components/wall.dart';
 
@@ -19,14 +20,17 @@ class Projectile extends CircleComponent
     this.damage = 10.0,
   }) : super(
           position: position,
-          radius: 5,
-          paint: Paint()..color = isFromPlayer ? Colors.lightBlueAccent : Colors.deepOrangeAccent,
+          radius: 8, // Más grande para ser más visible
+          paint: Paint()
+            ..color = isFromPlayer ? Colors.lightBlueAccent : Colors.deepOrangeAccent
+            ..style = PaintingStyle.fill,
         );
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    add(CircleHitbox());
+    // Hitbox más pequeño que el visual para mejor jugabilidad
+    add(CircleHitbox(radius: 6));
   }
 
   @override
@@ -49,11 +53,17 @@ class Projectile extends CircleComponent
     super.onCollisionStart(intersectionPoints, other);
 
     if (other is Wall) {
+      // Efecto de impacto en pared
+      game.world.add(HitEffect(position: position.clone()));
       removeFromParent();
     } else if (other is Player && !isFromPlayer) {
+      // Efecto de impacto en jugador
+      game.world.add(HitEffect(position: position.clone()));
       other.takeDamage(damage);
       removeFromParent();
     } else if (other is EnemyBot && isFromPlayer) {
+      // Efecto de impacto en enemigo
+      game.world.add(HitEffect(position: position.clone()));
       other.takeDamage(damage);
       removeFromParent();
     }

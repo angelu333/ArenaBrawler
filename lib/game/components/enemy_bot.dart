@@ -16,7 +16,7 @@ class EnemyBot extends SpriteComponent
   late final ValueNotifier<double> healthNotifier;
   late double maxSpeed;
 
-  static const double _projectileSpeed = 250.0;
+  static const double _projectileSpeed = 200.0; // Reducido para ser más esquivable
   double _lastShotTime = 0.0;
   final double _shootCooldown;
 
@@ -32,10 +32,11 @@ class EnemyBot extends SpriteComponent
     await super.onLoad();
     // Cargar el sprite del personaje enemigo desde assets
     sprite = await game.loadSprite(character.spriteAsset);
-    size = Vector2.all(96.0); // Aumentado de 64 a 96
+    size = Vector2.all(110.0); // Tamaño más grande
     anchor = Anchor.center;
 
-    add(RectangleHitbox());
+    // Hitbox circular más pequeño para mejor precisión
+    add(CircleHitbox(radius: 30));
     add(HealthBar(
       healthNotifier: healthNotifier,
       maxHealth: character.baseHealth,

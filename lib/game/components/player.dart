@@ -29,10 +29,11 @@ class Player extends SpriteComponent
     await super.onLoad();
     // Cargar el sprite del personaje desde assets
     sprite = await game.loadSprite(character.spriteAsset);
-    size = Vector2.all(96.0); // Aumentado de 64 a 96
+    size = Vector2.all(110.0); // Tamaño más grande
     anchor = Anchor.center;
 
-    add(RectangleHitbox());
+    // Hitbox circular más pequeño para mejor precisión
+    add(CircleHitbox(radius: 30));
     add(HealthBar(
       healthNotifier: healthNotifier,
       maxHealth: character.baseHealth,
@@ -100,7 +101,9 @@ class Player extends SpriteComponent
   void takeDamage(double damage) {
     healthNotifier.value -= damage;
     if (healthNotifier.value <= 0) {
-      // Handle player death
+      healthNotifier.value = 0;
+      // Notificar al juego que el jugador murió
+      game.onPlayerDeath();
       removeFromParent();
     }
   }

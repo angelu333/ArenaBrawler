@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:flame/components.dart';
+import 'dart:ui';
 import 'package:flame/game.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Rect;
 import 'package:juego_happy/data/character_data.dart';
 import 'package:juego_happy/game/components/arena.dart';
 import 'package:juego_happy/game/components/enemy_bot.dart';
@@ -15,14 +15,29 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
   late final Player player;
   late final DirectionJoystick joystick;
   late final EnemyBot enemyBot;
+  bool isGameOver = false;
 
   static final Vector2 worldSize = Vector2(1600, 1200);
 
   ArenaBrawlerGame({required this.playerCharacter});
 
+  void onPlayerDeath() {
+    if (!isGameOver) {
+      isGameOver = true;
+      pauseEngine();
+      overlays.add('GameOver');
+    }
+  }
+
+  @override
+  Color backgroundColor() => const Color(0xFF2a2a2a);
+
   @override
   FutureOr<void> onLoad() async {
     await super.onLoad();
+    
+    // Configurar viewport para que la cámara no muestre fuera de la arena
+    camera.viewfinder.visibleGameSize = Vector2(800, 600);
 
     final arenaData = ArenaData(
       spritePath: 'arenas/arena_1.png', // Usar la primera arena
@@ -60,7 +75,7 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     world.add(enemyBot);
     camera.viewport.add(joystick);
 
-    // Set camera to follow the player within the world bounds
+    // Set camera to follow the player
     camera.follow(player);
   }
 

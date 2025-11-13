@@ -23,6 +23,7 @@ class Arena extends Component with HasGameReference<FlameGame> {
           sprite: sprite,
           size: Vector2(1600, 1200), // Arena size
           position: Vector2.zero(),
+          priority: -1, // Renderizar detrás de todo
         ),
       );
     } else {

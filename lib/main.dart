@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:juego_happy/test_game_screen.dart';
+import 'package:juego_happy/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,11 +12,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Happy Game - Test',
+      title: 'Arena Brawler',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
+        brightness: Brightness.dark,
       ),
-      home: const TestGameScreen(), // Pantalla de prueba directa
+      home: const HomeScreen(),
     );
   }
 }
