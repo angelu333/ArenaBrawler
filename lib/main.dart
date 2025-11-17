@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:juego_happy/screens/home_screen.dart';
+import 'package:juego_happy/screens/loading_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
         brightness: Brightness.dark,
       ),
-      home: const HomeScreen(),
+      home: const LoadingScreen(),
     );
   }
 }

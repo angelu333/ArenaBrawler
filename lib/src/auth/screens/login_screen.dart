@@ -24,14 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
       message = await AuthService.register(email, password);
     }
 
-    if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
     }
-  }
 
   @override
   Widget build(BuildContext context) {
