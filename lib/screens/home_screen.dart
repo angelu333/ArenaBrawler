@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:juego_happy/screens/character_selection_screen.dart';
+import 'package:juego_happy/screens/level_map_screen.dart';
 import 'package:juego_happy/screens/store_screen.dart';
 import 'package:juego_happy/services/game_data_service.dart';
 
@@ -14,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final GameDataService _gameData = GameDataService();
   int _coins = 0;
-  int _gems = 50;
+  final int _gems = 50;
   String _selectedCharacter = 'default';
 
   late AnimationController _breatheController;
@@ -234,8 +235,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   SizedBox(height: screenHeight * 0.02),
                   _SideMenuButton(
                     iconImage: 'assets/images/icons/news_icon.png',
-                    label: 'NOTICIAS',
-                    onPressed: () {},
+                    label: 'MAPA',
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LevelMapScreen(),
+                        ),
+                      );
+                      _loadGameData();
+                    },
                   ),
                 ],
               ),

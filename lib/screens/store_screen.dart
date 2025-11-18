@@ -206,7 +206,7 @@ class _StoreCharacterCard extends StatelessWidget {
                 width: 140,
                 height: 140,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withAlpha((0.1 * 255).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
@@ -244,7 +244,7 @@ class _StoreCharacterCard extends StatelessWidget {
                     Text(
                       character.description,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withAlpha((0.8 * 255).round()),
                         fontSize: 12,
                       ),
                       maxLines: 2,
@@ -375,7 +375,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+  color: Colors.black.withAlpha((0.3 * 255).round()),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

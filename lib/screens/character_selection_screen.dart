@@ -165,16 +165,16 @@ class _CharacterCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withAlpha((0.1 * 255).round()),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? Colors.yellow : Colors.white.withOpacity(0.3),
+            color: isSelected ? Colors.yellow : Colors.white.withAlpha((0.3 * 255).round()),
             width: isSelected ? 4 : 2,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.yellow.withOpacity(0.5),
+                    color: Colors.yellow.withAlpha((0.5 * 255).round()),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -249,9 +249,9 @@ class _CharacterCard extends StatelessWidget {
             if (isSelected)
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.yellow,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(14),
                     bottomRight: Radius.circular(14),
                   ),

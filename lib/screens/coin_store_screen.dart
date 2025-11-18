@@ -151,10 +151,10 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withAlpha((0.1 * 255).round()),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withAlpha((0.3 * 255).round()),
                   width: 2,
                 ),
               ),
@@ -221,18 +221,18 @@ class _CoinPackageCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              package.color.withOpacity(0.8),
-              package.color.withOpacity(0.6),
+              package.color.withAlpha((0.8 * 255).round()),
+              package.color.withAlpha((0.6 * 255).round()),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withAlpha((0.3 * 255).round()),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: package.color.withOpacity(0.3),
+              color: package.color.withAlpha((0.3 * 255).round()),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -247,7 +247,7 @@ class _CoinPackageCard extends StatelessWidget {
               height: 100,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withAlpha((0.2 * 255).round()),
                 shape: BoxShape.circle,
               ),
               child: package.imagePath != null

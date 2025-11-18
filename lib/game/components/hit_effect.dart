@@ -9,7 +9,7 @@ class HitEffect extends CircleComponent {
           position: position,
           radius: 10,
           paint: Paint()
-            ..color = Colors.red.withOpacity(0.8)
+            ..color = Colors.red.withAlpha((0.8 * 255).round())
             ..style = PaintingStyle.fill,
         );
 
@@ -29,8 +29,8 @@ class HitEffect extends CircleComponent {
 
     // Expandir y desvanecer
     radius = 10 + (_lifetime / _maxLifetime) * 20;
-    final opacity = (0.8 * (1 - _lifetime / _maxLifetime)).clamp(0.0, 1.0);
-    paint.color = Colors.red.withOpacity(opacity);
+  final opacity = (0.8 * (1 - _lifetime / _maxLifetime)).clamp(0.0, 1.0);
+  paint.color = Colors.red.withAlpha((opacity * 255).clamp(0, 255).toInt());
 
     if (_lifetime >= _maxLifetime) {
       removeFromParent();

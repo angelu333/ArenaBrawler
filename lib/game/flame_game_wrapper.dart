@@ -117,7 +117,7 @@ class Hud extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withAlpha((0.5 * 255).round()),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -165,7 +165,7 @@ class Hud extends StatelessWidget {
             iconSize: 32,
             color: Colors.white,
             style: IconButton.styleFrom(
-              backgroundColor: Colors.black.withOpacity(0.5),
+              backgroundColor: Colors.black.withAlpha((0.5 * 255).round()),
             ),
           ),
         ],
@@ -189,7 +189,7 @@ class AttackButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(24),
-            backgroundColor: Colors.red.withOpacity(0.8),
+            backgroundColor: Colors.red.withAlpha((0.8 * 255).round()),
           ),
           onPressed: () {
             game.player.shoot();
@@ -216,7 +216,7 @@ class GameOverOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.8),
+  color: Colors.black.withAlpha((0.8 * 255).round()),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -225,11 +225,11 @@ class GameOverOverlay extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.3),
+                color: Colors.red.withAlpha((0.3 * 255).round()),
                 border: Border.all(color: Colors.red, width: 4),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.red.withOpacity(0.5),
+                    color: Colors.red.withAlpha((0.5 * 255).round()),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -264,7 +264,7 @@ class GameOverOverlay extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withAlpha((0.5 * 255).round()),
                 border: Border.all(color: Colors.white, width: 2),
               ),
               child: Column(
@@ -340,7 +340,7 @@ class _ArcadeButton extends StatelessWidget {
           border: Border.all(color: Colors.white, width: 3),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.5),
+              color: color.withAlpha((0.5 * 255).round()),
               blurRadius: 10,
               spreadRadius: 2,
             ),

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flame/game.dart';
-import 'package:flutter/material.dart' hide Rect;
 import 'package:juego_happy/data/character_data.dart';
 import 'package:juego_happy/game/components/arena.dart';
 import 'package:juego_happy/game/components/enemy_bot.dart';

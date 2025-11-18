@@ -3,6 +3,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:juego_happy/game/arena_brawler_game.dart';
+import 'package:juego_happy/game/components/aim_indicator.dart';
 import 'package:juego_happy/game/components/health_bar.dart';
 import 'package:juego_happy/game/components/projectile.dart';
 import 'package:juego_happy/game/components/wall.dart';
@@ -18,6 +19,7 @@ class Player extends SpriteComponent
   static const double _projectileSpeed = 300.0;
   double _lastShotTime = 0.0;
   Vector2 _lastMoveDirection = Vector2(0, 1); // Default shoot down
+  AimIndicator? _aimIndicator;
 
   Player({required this.character}) {
     maxSpeed = character.baseSpeed * 20; // Scale speed for gameplay
@@ -95,7 +97,25 @@ class Player extends SpriteComponent
   void setMoveDirection(Vector2 direction) {
     if (direction.length2 > 0) {
       _lastMoveDirection = direction.normalized();
+      _updateAimIndicator();
     }
+  }
+
+  void _updateAimIndicator() {
+    // Remover indicador anterior
+    _aimIndicator?.removeFromParent();
+
+    // Crear nuevo indicador
+    _aimIndicator = AimIndicator(
+      direction: _lastMoveDirection,
+      position: position.clone(),
+    );
+    game.world.add(_aimIndicator!);
+  }
+
+  void hideAimIndicator() {
+    _aimIndicator?.removeFromParent();
+    _aimIndicator = null;
   }
 
   void takeDamage(double damage) {

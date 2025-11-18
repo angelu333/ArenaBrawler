@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/game/components/enemy_bot.dart';
+import 'package:juego_happy/game/components/guard.dart';
 import 'package:juego_happy/game/components/hit_effect.dart';
 import 'package:juego_happy/game/components/player.dart';
 import 'package:juego_happy/game/components/wall.dart';
@@ -63,6 +64,11 @@ class Projectile extends CircleComponent
       removeFromParent();
     } else if (other is EnemyBot && isFromPlayer) {
       // Efecto de impacto en enemigo
+      game.world.add(HitEffect(position: position.clone()));
+      other.takeDamage(damage);
+      removeFromParent();
+    } else if (other is Guard && isFromPlayer) {
+      // Efecto de impacto en guardia
       game.world.add(HitEffect(position: position.clone()));
       other.takeDamage(damage);
       removeFromParent();

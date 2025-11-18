@@ -54,6 +54,7 @@ class LobbyScreen extends StatelessWidget {
               ),
               onPressed: () async {
                 await AuthService.signOut();
+                if (!context.mounted) return;
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),

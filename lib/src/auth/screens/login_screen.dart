@@ -24,11 +24,13 @@ class _LoginScreenState extends State<LoginScreen> {
       message = await AuthService.register(email, password);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message ?? 'Error desconocido'),
+        ),
+      );
+    }
     }
 
   @override
