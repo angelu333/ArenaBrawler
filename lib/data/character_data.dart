@@ -12,6 +12,10 @@ class CharacterData {
       baseSpeed: 5.0,
       attackDamage: 10.0,
       attackCooldownSec: 1.5,
+      specialAbility: SpecialAbility.rapidFire,
+      specialAbilityName: 'Ráfaga',
+      specialAbilityDescription: 'Dispara rápidamente durante 5 segundos',
+      specialAbilityCooldown: 12.0,
     ),
     const CharacterModel(
       id: 'warrior',
@@ -23,6 +27,10 @@ class CharacterData {
       baseSpeed: 4.0,
       attackDamage: 15.0,
       attackCooldownSec: 2.0,
+      specialAbility: SpecialAbility.shield,
+      specialAbilityName: 'Escudo',
+      specialAbilityDescription: 'Inmune al daño durante 4 segundos',
+      specialAbilityCooldown: 15.0,
     ),
     const CharacterModel(
       id: 'mage',
@@ -34,6 +42,10 @@ class CharacterData {
       baseSpeed: 4.5,
       attackDamage: 25.0,
       attackCooldownSec: 2.5,
+      specialAbility: SpecialAbility.superShot,
+      specialAbilityName: 'Bola de Fuego',
+      specialAbilityDescription: 'Disparo devastador que hace 3x daño',
+      specialAbilityCooldown: 10.0,
     ),
     const CharacterModel(
       id: 'rogue',
@@ -45,6 +57,10 @@ class CharacterData {
       baseSpeed: 6.0,
       attackDamage: 12.0,
       attackCooldownSec: 1.0,
+      specialAbility: SpecialAbility.speedBoost,
+      specialAbilityName: 'Velocidad',
+      specialAbilityDescription: 'Velocidad 2x durante 6 segundos',
+      specialAbilityCooldown: 12.0,
     ),
     const CharacterModel(
       id: 'archer',
@@ -56,6 +72,10 @@ class CharacterData {
       baseSpeed: 5.5,
       attackDamage: 18.0,
       attackCooldownSec: 1.7,
+      specialAbility: SpecialAbility.multiShot,
+      specialAbilityName: 'Lluvia de Flechas',
+      specialAbilityDescription: 'Dispara 5 proyectiles en abanico',
+      specialAbilityCooldown: 10.0,
     ),
     const CharacterModel(
       id: 'healer',
@@ -67,6 +87,10 @@ class CharacterData {
       baseSpeed: 4.2,
       attackDamage: 8.0,
       attackCooldownSec: 1.8,
+      specialAbility: SpecialAbility.heal,
+      specialAbilityName: 'Curación',
+      specialAbilityDescription: 'Recupera 50 puntos de vida',
+      specialAbilityCooldown: 15.0,
     ),
   ];
 }

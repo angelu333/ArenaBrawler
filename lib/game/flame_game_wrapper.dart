@@ -2,14 +2,17 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/models/character_model.dart';
+import 'package:juego_happy/models/level_data.dart';
 import 'package:juego_happy/services/game_data_service.dart';
 
 class FlameGameWrapper extends StatefulWidget {
   final CharacterModel selectedCharacter;
+  final int levelId;
 
   const FlameGameWrapper({
     super.key,
     required this.selectedCharacter,
+    this.levelId = 1,
   });
 
   @override
@@ -23,12 +26,32 @@ class _FlameGameWrapperState extends State<FlameGameWrapper> {
   @override
   void initState() {
     super.initState();
-    game = ArenaBrawlerGame(playerCharacter: widget.selectedCharacter);
+    game = ArenaBrawlerGame(
+      playerCharacter: widget.selectedCharacter,
+      levelId: widget.levelId,
+    );
   }
 
-  void _exitGame() async {
-    // Dar monedas por jugar (ejemplo: 50 monedas)
-    await _gameData.addCoins(50);
+  void _exitGame({bool won = false}) async {
+    // Dar monedas según el nivel
+    int coins = 50;
+    if (widget.levelId == 2) coins = 75;
+    if (widget.levelId == 3 || widget.levelId == 4) coins = 100;
+    if (widget.levelId == 5) coins = 150;
+    if (widget.levelId == 6) coins = 200;
+    if (widget.levelId == 7) coins = 500;
+
+    await _gameData.addCoins(coins);
+
+    // Si ganó, desbloquear siguiente nivel
+    if (won) {
+      await _gameData.completeLevel(widget.levelId, 3, 1000, 60.0);
+      // Desbloquear siguiente(s) nivel(es)
+      final nextLevels = LevelData.connections[widget.levelId] ?? [];
+      for (final nextLevel in nextLevels) {
+        await _gameData.unlockLevel(nextLevel);
+      }
+    }
 
     if (mounted) {
       Navigator.of(context).pop();
@@ -78,17 +101,27 @@ class _FlameGameWrapperState extends State<FlameGameWrapper> {
           'AttackButton': (context, game) {
             return AttackButton(game: game as ArenaBrawlerGame);
           },
+          'SpecialButton': (context, game) {
+            return SpecialButton(game: game as ArenaBrawlerGame);
+          },
           'GameOver': (context, game) {
             return GameOverOverlay(
               game: game as ArenaBrawlerGame,
               onRestart: () {
                 Navigator.of(context).pop();
               },
-              onExit: _exitGame,
+              onExit: () => _exitGame(won: false),
+            );
+          },
+          'Victory': (context, game) {
+            return VictoryOverlay(
+              game: game as ArenaBrawlerGame,
+              levelId: widget.levelId,
+              onContinue: () => _exitGame(won: true),
             );
           },
         },
-        initialActiveOverlays: const ['Hud', 'AttackButton'],
+        initialActiveOverlays: const ['Hud', 'AttackButton', 'SpecialButton'],
       ),
     );
   }
@@ -181,23 +214,113 @@ class AttackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: const CircleBorder(),
-            padding: const EdgeInsets.all(24),
-            backgroundColor: Colors.red.withAlpha((0.8 * 255).round()),
-          ),
-          onPressed: () {
-            game.player.shoot();
-          },
-          child: const Icon(Icons.bolt, size: 40, color: Colors.white),
+    return Positioned(
+      right: 40,
+      bottom: 40,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(24),
+          backgroundColor: Colors.red.withAlpha((0.8 * 255).round()),
         ),
+        onPressed: () {
+          game.player.shoot();
+        },
+        child: const Icon(Icons.bolt, size: 40, color: Colors.white),
       ),
     );
+  }
+}
+
+class SpecialButton extends StatefulWidget {
+  final ArenaBrawlerGame game;
+
+  const SpecialButton({super.key, required this.game});
+
+  @override
+  State<SpecialButton> createState() => _SpecialButtonState();
+}
+
+class _SpecialButtonState extends State<SpecialButton> {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 40,
+      bottom: 130,
+      child: StreamBuilder(
+        stream: Stream.periodic(const Duration(milliseconds: 100)),
+        builder: (context, snapshot) {
+          final canUse = widget.game.player.canUseSpecial;
+          final cooldown = widget.game.player.specialCooldownRemaining;
+          final character = widget.game.playerCharacter;
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Botón
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(24),
+                  backgroundColor: canUse
+                      ? Colors.purple.withAlpha((0.8 * 255).round())
+                      : Colors.grey.withAlpha((0.5 * 255).round()),
+                ),
+                onPressed: canUse
+                    ? () {
+                        widget.game.player.useSpecialAbility();
+                        setState(() {});
+                      }
+                    : null,
+                child: Icon(
+                  _getAbilityIcon(character.specialAbility),
+                  size: 40,
+                  color: Colors.white,
+                ),
+              ),
+              // Cooldown overlay
+              if (!canUse)
+                Positioned.fill(
+                  child: Center(
+                    child: Text(
+                      cooldown.toStringAsFixed(0),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black,
+                            offset: Offset(1, 1),
+                            blurRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  IconData _getAbilityIcon(SpecialAbility ability) {
+    switch (ability) {
+      case SpecialAbility.rapidFire:
+        return Icons.flash_on;
+      case SpecialAbility.superShot:
+        return Icons.whatshot;
+      case SpecialAbility.heal:
+        return Icons.favorite;
+      case SpecialAbility.speedBoost:
+        return Icons.speed;
+      case SpecialAbility.shield:
+        return Icons.shield;
+      case SpecialAbility.multiShot:
+        return Icons.grain;
+    }
   }
 }
 
@@ -355,6 +478,129 @@ class _ArcadeButton extends StatelessWidget {
             color: Colors.white,
             letterSpacing: 2,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class VictoryOverlay extends StatelessWidget {
+  final ArenaBrawlerGame game;
+  final int levelId;
+  final VoidCallback onContinue;
+
+  const VictoryOverlay({
+    super.key,
+    required this.game,
+    required this.levelId,
+    required this.onContinue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    int coins = 50;
+    if (levelId == 2) coins = 75;
+    if (levelId == 3 || levelId == 4) coins = 100;
+    if (levelId == 5) coins = 150;
+    if (levelId == 6) coins = 200;
+    if (levelId == 7) coins = 500;
+
+    return Container(
+      color: Colors.black.withAlpha((0.8 * 255).round()),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Texto VICTORIA estilo arcade
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.green.withAlpha((0.3 * 255).round()),
+                border: Border.all(color: Colors.green, width: 4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withAlpha((0.5 * 255).round()),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: const Text(
+                '¡VICTORIA!',
+                style: TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 72,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.green,
+                  letterSpacing: 8,
+                  shadows: [
+                    Shadow(
+                      color: Colors.white,
+                      offset: Offset(2, 2),
+                    ),
+                    Shadow(
+                      color: Colors.black,
+                      offset: Offset(4, 4),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // Estadísticas
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha((0.5 * 255).round()),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Nivel $levelId Completado',
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 24,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Personaje: ${game.playerCharacter.name}',
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '+ $coins MONEDAS',
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 24,
+                      color: Colors.amber,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // Botón continuar
+            _ArcadeButton(
+              text: 'CONTINUAR',
+              color: Colors.green,
+              onPressed: onContinue,
+            ),
+          ],
         ),
       ),
     );

@@ -16,26 +16,37 @@ class Arena extends Component with HasGameReference<FlameGame> {
 
     // Add background
     if (data.spritePath != null) {
-      // Cargar la imagen de la arena
-      final sprite = await game.loadSprite(data.spritePath!);
-      add(
-        SpriteComponent(
-          sprite: sprite,
-          size: Vector2(1600, 1200), // Arena size
-          position: Vector2.zero(),
-          priority: -1, // Renderizar detrás de todo
-        ),
-      );
+      try {
+        // Cargar la imagen de la arena
+        final sprite = await game.loadSprite(data.spritePath!);
+        add(
+          SpriteComponent(
+            sprite: sprite,
+            size: Vector2(1600, 1200), // Arena size
+            position: Vector2.zero(),
+            priority: -1, // Renderizar detrás de todo
+          ),
+        );
+      } catch (e) {
+        // Si falla la carga, usar color de respaldo
+        print('Error cargando arena: $e');
+        add(
+          RectangleComponent(
+            size: Vector2(1600, 1200),
+            paint: Paint()..color = const Color(0xFF1a4d2e),
+          ),
+        );
+      }
     } else {
       add(
         RectangleComponent(
           size: Vector2(1600, 1200), // Arena size
-          paint: Paint()..color = data.color ?? const Color(0xFF272727),
+          paint: Paint()..color = data.color ?? const Color(0xFF1a4d2e),
         ),
       );
     }
 
-    // Add obstacles
+    // Add obstacles (paredes visibles)
     for (final rect in data.obstacles) {
       add(
         Wall(

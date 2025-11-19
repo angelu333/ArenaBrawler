@@ -26,8 +26,17 @@ class _Level2WrapperState extends State<Level2Wrapper> {
     game = Level2Game(playerCharacter: widget.selectedCharacter);
   }
 
-  void _exitGame() async {
+  void _exitGame({bool won = false}) async {
     await _gameData.addCoins(75); // Recompensa del nivel 2
+    
+    // Si ganó, desbloquear siguiente nivel
+    if (won) {
+      await _gameData.completeLevel(2, 3, 1000, 60.0);
+      // Desbloquear niveles 3 y 4 (bifurcación)
+      await _gameData.unlockLevel(3);
+      await _gameData.unlockLevel(4);
+    }
+    
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -261,7 +270,7 @@ class _Level2WrapperState extends State<Level2Wrapper> {
             ),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: _exitGame,
+              onPressed: () => _exitGame(won: true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 padding: const EdgeInsets.symmetric(
@@ -298,7 +307,7 @@ class _Level2WrapperState extends State<Level2Wrapper> {
             ),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: _exitGame,
+              onPressed: () => _exitGame(won: false),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 padding: const EdgeInsets.symmetric(

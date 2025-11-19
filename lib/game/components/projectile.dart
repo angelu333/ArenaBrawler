@@ -13,17 +13,21 @@ class Projectile extends CircleComponent
   final Vector2 velocity;
   final double damage;
   final bool isFromPlayer;
+  final bool isSpecial;
 
   Projectile({
     required Vector2 position,
     required this.velocity,
     required this.isFromPlayer,
     this.damage = 10.0,
+    this.isSpecial = false,
   }) : super(
           position: position,
-          radius: 8, // Más grande para ser más visible
+          radius: isSpecial ? 12 : 8,
           paint: Paint()
-            ..color = isFromPlayer ? Colors.lightBlueAccent : Colors.deepOrangeAccent
+            ..color = isSpecial 
+                ? Colors.orange 
+                : (isFromPlayer ? Colors.lightBlueAccent : Colors.deepOrangeAccent)
             ..style = PaintingStyle.fill,
         );
 

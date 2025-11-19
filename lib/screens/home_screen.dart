@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const CharacterSelectionScreen(),
+                              const CharacterSelectionScreen(selectOnly: true),
                         ),
                       );
                       _loadGameData();
@@ -257,10 +257,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bottom: 40,
             child: _PlayButtonUnified(
               onPressed: () async {
+                // Ir directamente al mapa de niveles
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CharacterSelectionScreen(),
+                    builder: (context) => const LevelMapScreen(),
                   ),
                 );
                 _loadGameData();

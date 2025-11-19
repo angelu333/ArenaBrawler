@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
 import 'package:juego_happy/data/character_data.dart';
 import 'package:juego_happy/game/components/diamond.dart';
 import 'package:juego_happy/game/components/exit_point.dart';
 import 'package:juego_happy/game/components/guard.dart';
 import 'package:juego_happy/game/components/joystick.dart';
+import 'package:juego_happy/game/components/maze_wall.dart'; // Importar el nuevo componente
 import 'package:juego_happy/game/components/player.dart';
-import 'package:juego_happy/game/components/wall.dart';
 import 'package:juego_happy/models/character_model.dart';
 
 class Level2Game extends FlameGame
@@ -25,7 +27,7 @@ class Level2Game extends FlameGame
   Level2Game({required this.playerCharacter});
 
   @override
-  Color backgroundColor() => const Color(0xFF1a1a1a);
+  Color backgroundColor() => const Color(0xFF1a1a2e); // Azul muy oscuro para nivel 2
 
   @override
   FutureOr<void> onLoad() async {
@@ -33,8 +35,31 @@ class Level2Game extends FlameGame
 
     camera.viewfinder.visibleGameSize = Vector2(800, 600);
 
+    // Agregar fondo de arena 3
+    try {
+      final sprite = await loadSprite('arenas/arena_3.png');
+      world.add(
+        SpriteComponent(
+          sprite: sprite,
+          size: worldSize,
+          position: Vector2.zero(),
+          priority: -1,
+        ),
+      );
+    } catch (e) {
+      // Si falla, usar color de respaldo
+      world.add(
+        RectangleComponent(
+          size: worldSize,
+          position: Vector2.zero(),
+          paint: Paint()..color = const Color(0xFF2a1a4d),
+          priority: -1,
+        ),
+      );
+    }
+
     // Crear laberinto
-    _createMaze();
+    await _createMaze();
 
     // Agregar diamante en el centro
     final diamond = Diamond(
@@ -67,26 +92,40 @@ class Level2Game extends FlameGame
     camera.follow(player);
   }
 
-  void _createMaze() {
-    const wallThickness = 20.0;
+  Future<void> _createMaze() async {
+    const wallThickness = 40.0; // Más grueso para que se vea mejor
+    
+    // Cargar sprite de pared
+    Sprite? wallSprite;
+    try {
+      wallSprite = await loadSprite('level2_maze_walls/wall_straight.png');
+    } catch (e) {
+      print('Error cargando sprite de pared: $e');
+    }
 
     // Bordes del mapa
-    world.add(Wall(
-      position: Vector2(0, 0),
-      size: Vector2(worldSize.x, wallThickness),
-    ));
-    world.add(Wall(
-      position: Vector2(0, worldSize.y - wallThickness),
-      size: Vector2(worldSize.x, wallThickness),
-    ));
-    world.add(Wall(
-      position: Vector2(0, 0),
-      size: Vector2(wallThickness, worldSize.y),
-    ));
-    world.add(Wall(
-      position: Vector2(worldSize.x - wallThickness, 0),
-      size: Vector2(wallThickness, worldSize.y),
-    ));
+    if (wallSprite != null) {
+      world.add(MazeWall(
+        position: Vector2(0, 0),
+        size: Vector2(worldSize.x, wallThickness),
+        sprite: wallSprite,
+      ));
+      world.add(MazeWall(
+        position: Vector2(0, worldSize.y - wallThickness),
+        size: Vector2(worldSize.x, wallThickness),
+        sprite: wallSprite,
+      ));
+      world.add(MazeWall(
+        position: Vector2(0, 0),
+        size: Vector2(wallThickness, worldSize.y),
+        sprite: wallSprite,
+      ));
+      world.add(MazeWall(
+        position: Vector2(worldSize.x - wallThickness, 0),
+        size: Vector2(wallThickness, worldSize.y),
+        sprite: wallSprite,
+      ));
+    }
 
     // Laberinto interior - Diseño complejo
     final mazeWalls = [
@@ -138,11 +177,15 @@ class Level2Game extends FlameGame
       Rect.fromLTWH(worldSize.x / 2 + 50, worldSize.y / 2 + 80, 150, 20),
     ];
 
-    for (final rect in mazeWalls) {
-      world.add(Wall(
-        position: Vector2(rect.left, rect.top),
-        size: Vector2(rect.width, rect.height),
-      ));
+    // Agregar paredes del laberinto
+    if (wallSprite != null) {
+      for (final rect in mazeWalls) {
+        world.add(MazeWall(
+          position: Vector2(rect.left, rect.top),
+          size: Vector2(rect.width, rect.height),
+          sprite: wallSprite,
+        ));
+      }
     }
   }
 

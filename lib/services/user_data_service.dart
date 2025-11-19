@@ -12,8 +12,8 @@ class UserDataService {
     final username = email.split('@').first;
 
     final userProfile = UserProfile(
-      uid: uid,
-      username: username,
+      userId: uid,
+      displayName: username,
     );
 
     await _db.collection('users').doc(uid).set(userProfile.toJson());

@@ -113,6 +113,9 @@ class EnemyBot extends SpriteComponent
   void takeDamage(double damage) {
     healthNotifier.value -= damage;
     if (healthNotifier.value <= 0) {
+      healthNotifier.value = 0;
+      // Notificar al juego que el enemigo murió
+      game.onEnemyDeath(this);
       removeFromParent();
     }
   }

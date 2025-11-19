@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:juego_happy/data/character_data.dart';
+import 'package:juego_happy/game/flame_game_wrapper.dart';
+import 'package:juego_happy/game/level2_wrapper.dart';
 import 'package:juego_happy/models/level_data.dart';
 import 'package:juego_happy/services/game_data_service.dart';
-// 'dart:math' removed because it was unused
 
 class LevelMapScreen extends StatefulWidget {
   const LevelMapScreen({super.key});
@@ -125,7 +127,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.black.withAlpha((0.5 * 255).round()),
+              Colors.black.withValues(alpha: 0.5),
               Colors.transparent,
             ],
             begin: Alignment.topCenter,
@@ -138,7 +140,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               style: IconButton.styleFrom(
-                backgroundColor: Colors.black.withAlpha((0.5 * 255).round()),
+                backgroundColor: Colors.black.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(width: 16),
@@ -179,15 +181,13 @@ class _LevelMapScreenState extends State<LevelMapScreen>
       left: x - 40,
       top: y - 40,
       child: GestureDetector(
-        onTap: isUnlocked
-            ? () => _onLevelTap(level)
-            : () => _showLockedMessage(),
+        onTap:
+            isUnlocked ? () => _onLevelTap(level) : () => _showLockedMessage(),
         child: AnimatedBuilder(
           animation: _pulseController,
           builder: (context, child) {
-            final scale = isCurrent
-                ? 1.0 + (_pulseController.value * 0.1)
-                : 1.0;
+            final scale =
+                isCurrent ? 1.0 + (_pulseController.value * 0.1) : 1.0;
 
             return Transform.scale(
               scale: scale,
@@ -215,13 +215,13 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha((0.3 * 255).round()),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
                         if (isCurrent)
                           BoxShadow(
-                            color: Colors.yellow.withAlpha((0.5 * 255).round()),
+                            color: Colors.yellow.withValues(alpha: 0.5),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -327,7 +327,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withAlpha((0.7 * 255).round()),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -429,11 +429,40 @@ class _LevelMapScreenState extends State<LevelMapScreen>
     );
   }
 
-  void _startLevel(LevelData level) {
-    // TODO: Navegar a la pantalla del juego con este nivel
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Iniciando ${level.name}...')),
+  void _startLevel(LevelData level) async {
+    // Obtener personaje seleccionado
+    final selectedCharId = await _gameData.getSelectedCharacter();
+    final character = CharacterData.availableCharacters.firstWhere(
+      (c) => c.id == selectedCharId,
+      orElse: () => CharacterData.availableCharacters[0],
     );
+
+    if (!mounted) return;
+
+    // Navegar según el nivel
+    if (level.id == 2) {
+      // Nivel 2: Laberinto con guardias y diamante
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Level2Wrapper(selectedCharacter: character),
+        ),
+      );
+    } else {
+      // Otros niveles: Juego normal de arena
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FlameGameWrapper(
+            selectedCharacter: character,
+            levelId: level.id,
+          ),
+        ),
+      );
+    }
+
+    // Recargar progreso
+    _loadProgress();
   }
 }
 
@@ -473,9 +502,8 @@ class LevelPathPainter extends CustomPainter {
 
         // Color del camino según si está desbloqueado
         final isUnlocked = progress[toId]?['isUnlocked'] ?? false;
-        paint.color = isUnlocked
-            ? Colors.yellow.shade700
-            : Colors.brown.shade700;
+        paint.color =
+            isUnlocked ? Colors.yellow.shade700 : Colors.brown.shade700;
 
         // Dibujar línea con curva
         final path = Path();
@@ -515,7 +543,7 @@ class CloudsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-  ..color = Colors.white.withAlpha((0.3 * 255).round())
+      ..color = Colors.white.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     // Dibujar algunas nubes

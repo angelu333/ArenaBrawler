@@ -11,14 +11,16 @@ import 'package:juego_happy/models/character_model.dart';
 
 class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
   final CharacterModel playerCharacter;
+  final int levelId;
   late final Player player;
   late final DirectionJoystick joystick;
-  late final EnemyBot enemyBot;
+  final List<EnemyBot> enemies = [];
   bool isGameOver = false;
+  bool hasWon = false;
 
   static final Vector2 worldSize = Vector2(1600, 1200);
 
-  ArenaBrawlerGame({required this.playerCharacter});
+  ArenaBrawlerGame({required this.playerCharacter, this.levelId = 1});
 
   void onPlayerDeath() {
     if (!isGameOver) {
@@ -28,8 +30,18 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     }
   }
 
+  void onEnemyDeath(EnemyBot enemy) {
+    enemies.remove(enemy);
+    // Verificar si todos los enemigos han sido eliminados
+    if (enemies.isEmpty && !hasWon && !isGameOver) {
+      hasWon = true;
+      pauseEngine();
+      overlays.add('Victory');
+    }
+  }
+
   @override
-  Color backgroundColor() => const Color(0xFF2a2a2a);
+  Color backgroundColor() => const Color(0xFF0d2818); // Verde muy oscuro
 
   @override
   FutureOr<void> onLoad() async {
@@ -38,18 +50,17 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     // Configurar viewport para que la cámara no muestre fuera de la arena
     camera.viewfinder.visibleGameSize = Vector2(800, 600);
 
+    // Seleccionar arena según el nivel
+    String arenaPath = 'arenas/arena_1.png';
+    if (levelId >= 6) {
+      arenaPath = 'arenas/arena_3.png';
+    } else if (levelId >= 3) {
+      arenaPath = 'arenas/arena_2.png';
+    }
+
     final arenaData = ArenaData(
-      spritePath: 'arenas/arena_1.png', // Usar la primera arena
-      obstacles: [
-        // World boundaries
-        Rect.fromLTWH(0, 0, worldSize.x, 10), // Top
-        Rect.fromLTWH(0, worldSize.y - 10, worldSize.x, 10), // Bottom
-        Rect.fromLTWH(0, 0, 10, worldSize.y), // Left
-        Rect.fromLTWH(worldSize.x - 10, 0, 10, worldSize.y), // Right
-        // Some obstacles
-        Rect.fromLTWH(worldSize.x * 0.25, worldSize.y * 0.5 - 50, 20, 100),
-        Rect.fromLTWH(worldSize.x * 0.75, worldSize.y * 0.5 - 50, 20, 100),
-      ],
+      spritePath: arenaPath,
+      obstacles: [], // No obstacles/walls for Level 1
     );
 
     world.add(Arena(data: arenaData));
@@ -60,18 +71,11 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     // Add player
     player = Player(character: playerCharacter);
     player.position = Vector2(worldSize.x / 2, worldSize.y * 0.7);
-
-    // Add enemy bot
-    final enemyCharacter = CharacterData.availableCharacters.firstWhere(
-      (char) => char.id == 'warrior',
-      orElse: () => CharacterData.availableCharacters[1], // Fallback
-    );
-    enemyBot = EnemyBot(character: enemyCharacter);
-    enemyBot.position = Vector2(worldSize.x / 2, worldSize.y * 0.3);
-
-    // Add components to the world
     world.add(player);
-    world.add(enemyBot);
+
+    // Add enemies based on level
+    _addEnemiesForLevel();
+
     camera.viewport.add(joystick);
 
     // Set camera to follow the player
@@ -92,5 +96,40 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     final moveVector =
         joystick.relativeDelta.normalized() * player.maxSpeed * dt;
     player.position.add(moveVector);
+  }
+
+  void _addEnemiesForLevel() {
+    final enemyCharacter = CharacterData.availableCharacters.firstWhere(
+      (char) => char.id == 'warrior',
+      orElse: () => CharacterData.availableCharacters[1],
+    );
+
+    // Determinar número de enemigos según el nivel
+    int enemyCount = 1;
+    if (levelId == 2) {
+      enemyCount = 2;
+    } else if (levelId == 3 || levelId == 4) {
+      enemyCount = 3;
+    } else if (levelId == 5) {
+      enemyCount = 5;
+    } else if (levelId == 6) {
+      enemyCount = 4;
+    }
+
+    // Posiciones para los enemigos
+    final positions = [
+      Vector2(worldSize.x / 2, worldSize.y * 0.3),
+      Vector2(worldSize.x * 0.3, worldSize.y * 0.3),
+      Vector2(worldSize.x * 0.7, worldSize.y * 0.3),
+      Vector2(worldSize.x * 0.3, worldSize.y * 0.5),
+      Vector2(worldSize.x * 0.7, worldSize.y * 0.5),
+    ];
+
+    for (int i = 0; i < enemyCount && i < positions.length; i++) {
+      final enemy = EnemyBot(character: enemyCharacter);
+      enemy.position = positions[i];
+      enemies.add(enemy);
+      world.add(enemy);
+    }
   }
 }

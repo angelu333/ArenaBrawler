@@ -66,29 +66,32 @@ class GameDataService {
 
   // ===== PROGRESO DE NIVELES =====
 
-  static const String _levelProgressKey = 'level_progress';
   static const String _currentLevelKey = 'current_level';
 
   // Obtener progreso de todos los niveles
   Future<Map<int, Map<String, dynamic>>> getLevelProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final progressJson = prefs.getString(_levelProgressKey);
     
-    if (progressJson == null) {
-      // Inicializar con nivel 1 desbloqueado
-      return {
-        1: {
-          'isCompleted': false,
-          'isUnlocked': true,
-          'stars': 0,
-          'bestScore': 0,
-          'bestTime': 0.0,
-        }
+    // Cargar progreso guardado
+    Map<int, Map<String, dynamic>> progress = {};
+    
+    for (int i = 1; i <= 7; i++) {
+      final isCompleted = prefs.getBool('level_${i}_completed') ?? false;
+      final isUnlocked = prefs.getBool('level_${i}_unlocked') ?? (i == 1);
+      final stars = prefs.getInt('level_${i}_stars') ?? 0;
+      final bestScore = prefs.getInt('level_${i}_score') ?? 0;
+      final bestTime = prefs.getDouble('level_${i}_time') ?? 0.0;
+      
+      progress[i] = {
+        'isCompleted': isCompleted,
+        'isUnlocked': isUnlocked,
+        'stars': stars,
+        'bestScore': bestScore,
+        'bestTime': bestTime,
       };
     }
-
-    // Parsear JSON guardado - implementación simplificada
-    return {1: {'isCompleted': false, 'isUnlocked': true, 'stars': 0, 'bestScore': 0, 'bestTime': 0.0}};
+    
+    return progress;
   }
 
   // Guardar progreso de un nivel
@@ -99,42 +102,46 @@ class GameDataService {
     double? time,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final progress = await getLevelProgress();
     
-    final current = progress[levelId] ?? {
-      'isCompleted': false,
-      'isUnlocked': false,
-      'stars': 0,
-      'bestScore': 0,
-      'bestTime': 0.0,
-    };
-
-    progress[levelId] = {
-      'isCompleted': isCompleted ?? current['isCompleted'],
-      'isUnlocked': true,
-      'stars': stars ?? current['stars'],
-      'bestScore': score ?? current['bestScore'],
-      'bestTime': time ?? current['bestTime'],
-    };
-
-    // Guardar (simplificado)
-    await prefs.setString(_levelProgressKey, progress.toString());
+    if (isCompleted != null) {
+      await prefs.setBool('level_${levelId}_completed', isCompleted);
+    }
+    if (stars != null) {
+      await prefs.setInt('level_${levelId}_stars', stars);
+    }
+    if (score != null) {
+      await prefs.setInt('level_${levelId}_score', score);
+    }
+    if (time != null) {
+      await prefs.setDouble('level_${levelId}_time', time);
+    }
+    
+    // Siempre marcar como desbloqueado si se está guardando progreso
+    await prefs.setBool('level_${levelId}_unlocked', true);
   }
 
   // Desbloquear nivel
   Future<void> unlockLevel(int levelId) async {
-    await saveLevelProgress(levelId, isCompleted: false);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('level_${levelId}_unlocked', true);
   }
 
   // Completar nivel
   Future<void> completeLevel(int levelId, int stars, int score, double time) async {
-    await saveLevelProgress(
-      levelId,
-      isCompleted: true,
-      stars: stars,
-      score: score,
-      time: time,
-    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('level_${levelId}_completed', true);
+    await prefs.setInt('level_${levelId}_stars', stars);
+    
+    // Solo actualizar si es mejor que el anterior
+    final currentScore = prefs.getInt('level_${levelId}_score') ?? 0;
+    if (score > currentScore) {
+      await prefs.setInt('level_${levelId}_score', score);
+    }
+    
+    final currentTime = prefs.getDouble('level_${levelId}_time') ?? 0.0;
+    if (time < currentTime || currentTime == 0.0) {
+      await prefs.setDouble('level_${levelId}_time', time);
+    }
   }
 
   // Obtener nivel actual

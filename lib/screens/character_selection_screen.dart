@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:juego_happy/data/character_data.dart';
-import 'package:juego_happy/game/flame_game_wrapper.dart';
 import 'package:juego_happy/models/character_model.dart';
+import 'package:juego_happy/screens/level_map_screen.dart';
 import 'package:juego_happy/services/game_data_service.dart';
 
 class CharacterSelectionScreen extends StatefulWidget {
-  const CharacterSelectionScreen({super.key});
+  final bool selectOnly;
+  
+  const CharacterSelectionScreen({super.key, this.selectOnly = false});
 
   @override
   State<CharacterSelectionScreen> createState() =>
@@ -42,16 +44,18 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
   }
 
   void _startGame() {
-    final character = CharacterData.availableCharacters.firstWhere(
-      (c) => c.id == _selectedCharacterId,
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FlameGameWrapper(selectedCharacter: character),
-      ),
-    );
+    if (widget.selectOnly) {
+      // Solo seleccionar y volver
+      Navigator.pop(context);
+    } else {
+      // Ir al mapa de niveles
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LevelMapScreen(),
+        ),
+      );
+    }
   }
 
   @override
@@ -108,7 +112,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
               ),
             ),
 
-            // Botón para iniciar juego
+            // Botón para iniciar juego o confirmar selección
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: SizedBox(
@@ -124,14 +128,14 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                     ),
                     elevation: 8,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.play_arrow, size: 32),
-                      SizedBox(width: 12),
+                      const Icon(Icons.play_arrow, size: 32),
+                      const SizedBox(width: 12),
                       Text(
-                        'INICIAR BATALLA',
-                        style: TextStyle(
+                        widget.selectOnly ? 'CONFIRMAR' : 'INICIAR BATALLA',
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -224,23 +228,45 @@ class _CharacterCard extends StatelessWidget {
             // Stats
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Column(
                 children: [
-                  _StatIcon(
-                    icon: Icons.favorite,
-                    value: character.baseHealth.toInt().toString(),
-                    color: Colors.red,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _StatIcon(
+                        icon: Icons.favorite,
+                        value: character.baseHealth.toInt().toString(),
+                        color: Colors.red,
+                      ),
+                      _StatIcon(
+                        icon: Icons.flash_on,
+                        value: character.baseSpeed.toInt().toString(),
+                        color: Colors.blue,
+                      ),
+                      _StatIcon(
+                        icon: Icons.whatshot,
+                        value: character.attackDamage.toInt().toString(),
+                        color: Colors.orange,
+                      ),
+                    ],
                   ),
-                  _StatIcon(
-                    icon: Icons.flash_on,
-                    value: character.baseSpeed.toInt().toString(),
-                    color: Colors.blue,
-                  ),
-                  _StatIcon(
-                    icon: Icons.whatshot,
-                    value: character.attackDamage.toInt().toString(),
-                    color: Colors.orange,
+                  const SizedBox(height: 4),
+                  // Habilidad especial
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withAlpha((0.3 * 255).round()),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      character.specialAbilityName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ],
               ),

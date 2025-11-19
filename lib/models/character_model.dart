@@ -1,3 +1,12 @@
+enum SpecialAbility {
+  rapidFire,      // Disparo rápido
+  superShot,      // Disparo poderoso
+  heal,           // Curación
+  speedBoost,     // Velocidad aumentada
+  shield,         // Escudo temporal
+  multiShot,      // Disparo múltiple
+}
+
 class CharacterModel {
   final String id;
   final String name;
@@ -8,6 +17,10 @@ class CharacterModel {
   final double baseSpeed;
   final double attackDamage;
   final double attackCooldownSec;
+  final SpecialAbility specialAbility;
+  final String specialAbilityName;
+  final String specialAbilityDescription;
+  final double specialAbilityCooldown; // En segundos
 
   const CharacterModel({
     required this.id,
@@ -19,6 +32,10 @@ class CharacterModel {
     required this.baseSpeed,
     required this.attackDamage,
     required this.attackCooldownSec,
+    required this.specialAbility,
+    required this.specialAbilityName,
+    required this.specialAbilityDescription,
+    this.specialAbilityCooldown = 10.0,
   });
 
   factory CharacterModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +49,10 @@ class CharacterModel {
       baseSpeed: (json['baseSpeed'] as num).toDouble(),
       attackDamage: (json['attackDamage'] as num).toDouble(),
       attackCooldownSec: (json['attackCooldownSec'] as num).toDouble(),
+      specialAbility: SpecialAbility.values[json['specialAbility'] as int? ?? 0],
+      specialAbilityName: json['specialAbilityName'] as String? ?? '',
+      specialAbilityDescription: json['specialAbilityDescription'] as String? ?? '',
+      specialAbilityCooldown: (json['specialAbilityCooldown'] as num?)?.toDouble() ?? 10.0,
     );
   }
 
@@ -46,6 +67,10 @@ class CharacterModel {
       'baseSpeed': baseSpeed,
       'attackDamage': attackDamage,
       'attackCooldownSec': attackCooldownSec,
+      'specialAbility': specialAbility.index,
+      'specialAbilityName': specialAbilityName,
+      'specialAbilityDescription': specialAbilityDescription,
+      'specialAbilityCooldown': specialAbilityCooldown,
     };
   }
 }
