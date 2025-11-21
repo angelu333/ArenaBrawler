@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:flame/experimental.dart'; // Para Rectangle
+import 'package:flame/camera.dart'; // Para FixedAspectRatioViewportge:flame/camera.dart'; // Para FixedAspectRatioViewport
 import 'package:juego_happy/data/character_data.dart';
 import 'package:juego_happy/game/components/arena.dart';
 import 'package:juego_happy/game/components/enemy_bot.dart';
 import 'package:juego_happy/game/components/joystick.dart';
+import 'package:juego_happy/game/components/shooting_joystick.dart';
 import 'package:juego_happy/game/components/player.dart';
 import 'package:juego_happy/game/data/arena_data.dart';
 import 'package:juego_happy/models/character_model.dart';
@@ -47,8 +51,10 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
   FutureOr<void> onLoad() async {
     await super.onLoad();
     
-    // Configurar viewport para que la cámara no muestre fuera de la arena
-    camera.viewfinder.visibleGameSize = Vector2(800, 600);
+    // Configurar viewport con relación de aspecto fija 4:3
+    camera.viewport = FixedAspectRatioViewport(aspectRatio: 4 / 3);
+    final viewportSize = Vector2(800, 600);
+    camera.viewfinder.visibleGameSize = viewportSize;
 
     // Seleccionar arena según el nivel
     String arenaPath = 'arenas/arena_1.png';
@@ -67,6 +73,7 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
 
     // Add joystick
     joystick = DirectionJoystick();
+    shootingJoystick = ShootingJoystick();
 
     // Add player
     player = Player(character: playerCharacter);
@@ -77,25 +84,50 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     _addEnemiesForLevel();
 
     camera.viewport.add(joystick);
+    camera.viewport.add(shootingJoystick);
 
     // Set camera to follow the player
     camera.follow(player);
+    
+    // Restrict camera to the arena bounds (inset by half viewport to keep view inside)
+    final halfViewport = viewportSize / 2;
+    final cameraBounds = Rectangle.fromLTWH(
+      halfViewport.x, 
+      halfViewport.y, 
+      worldSize.x - viewportSize.x, 
+      worldSize.y - viewportSize.y
+    );
+    camera.setBounds(cameraBounds);
   }
+
+  late final ShootingJoystick shootingJoystick;
+  bool _wasShooting = false;
 
   @override
   void update(double dt) {
     super.update(dt);
-    if (!joystick.isDragged) {
-      return;
+    
+    // 1. Manejo de Movimiento (Joystick Izquierdo)
+    if (joystick.isDragged) {
+      player.setMoveDirection(joystick.relativeDelta);
+      player.animateMovement(dt, true);
+      
+      final moveVector = joystick.relativeDelta.normalized() * player.maxSpeed * dt;
+      player.position.add(moveVector);
+    } else {
+      player.animateMovement(dt, false);
     }
 
-    // Update player's move direction
-    player.setMoveDirection(joystick.relativeDelta);
-
-    // Calculate new position
-    final moveVector =
-        joystick.relativeDelta.normalized() * player.maxSpeed * dt;
-    player.position.add(moveVector);
+    // 2. Manejo de Disparo (Joystick Derecho)
+    if (shootingJoystick.isDragged) {
+      _wasShooting = true;
+      player.setAimDirection(shootingJoystick.relativeDelta);
+    } else {
+      if (_wasShooting) {
+        _wasShooting = false;
+        player.stopAiming(); // Disparar al soltar
+      }
+    }
   }
 
   void _addEnemiesForLevel() {

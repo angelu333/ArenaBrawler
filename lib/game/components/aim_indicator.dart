@@ -7,10 +7,6 @@ import 'package:juego_happy/game/arena_brawler_game.dart';
 class AimIndicator extends PositionComponent
     with HasGameReference<ArenaBrawlerGame> {
   final Vector2 direction;
-  static const double lineLength = 80.0;
-  static const double dotSpacing = 15.0;
-  static const int dotCount = 5;
-
   AimIndicator({required this.direction, required Vector2 position})
       : super(position: position, size: Vector2.all(10));
 
@@ -27,45 +23,40 @@ class AimIndicator extends PositionComponent
     if (direction.length2 == 0) return;
 
     final normalizedDir = direction.normalized();
+    final endPoint = normalizedDir * 250.0; // Línea más larga
 
-    // Dibujar línea principal
+    // 1. Dibujar línea de trayectoria (Punteada/Gradiente)
     final paint = Paint()
-  ..color = Colors.red.withAlpha((0.8 * 255).round())
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
+      ..shader = LinearGradient(
+        colors: [
+          Colors.red.withOpacity(0.8),
+          Colors.red.withOpacity(0.0),
+        ],
+        stops: const [0.0, 1.0],
+      ).createShader(Rect.fromPoints(Offset.zero, endPoint.toOffset()))
+      ..strokeWidth = 4
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
-    final endPoint = normalizedDir * lineLength;
-    canvas.drawLine(Offset.zero, endPoint.toOffset(), paint);
-
-    // Dibujar puntos a lo largo de la línea
-    final dotPaint = Paint()
-  ..color = Colors.red.withAlpha((0.6 * 255).round())
-      ..style = PaintingStyle.fill;
-
-    for (int i = 1; i <= dotCount; i++) {
-      final dotPos = normalizedDir * (dotSpacing * i);
-      canvas.drawCircle(dotPos.toOffset(), 3, dotPaint);
+    // Dibujar línea punteada manualmente
+    double dashWidth = 10;
+    double dashSpace = 10;
+    double distance = 0;
+    while (distance < 250) {
+      final start = normalizedDir * distance;
+      final end = normalizedDir * (distance + dashWidth);
+      canvas.drawLine(start.toOffset(), end.toOffset(), paint);
+      distance += dashWidth + dashSpace;
     }
 
-    // Dibujar punta de flecha
-    final arrowPaint = Paint()
+    // 2. Dibujar Retículo (Mira) al final
+    final reticlePos = normalizedDir * 250.0;
+    final reticlePaint = Paint()
       ..color = Colors.red
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
 
-    final arrowTip = normalizedDir * lineLength;
-    final arrowLeft = arrowTip +
-        Vector2(-normalizedDir.y, normalizedDir.x).normalized() * 8 -
-        normalizedDir * 12;
-    final arrowRight = arrowTip +
-        Vector2(normalizedDir.y, -normalizedDir.x).normalized() * 8 -
-        normalizedDir * 12;
-
-    final path = Path()
-      ..moveTo(arrowTip.x, arrowTip.y)
-      ..lineTo(arrowLeft.x, arrowLeft.y)
-      ..lineTo(arrowRight.x, arrowRight.y)
-      ..close();
-
-    canvas.drawPath(path, arrowPaint);
+    canvas.drawCircle(reticlePos.toOffset(), 10, reticlePaint);
+    canvas.drawCircle(reticlePos.toOffset(), 2, Paint()..color = Colors.red);
   }
 }

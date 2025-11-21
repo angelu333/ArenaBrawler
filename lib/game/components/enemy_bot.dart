@@ -6,11 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/game/components/health_bar.dart';
 
+import 'package:juego_happy/game/components/player.dart';
 import 'package:juego_happy/game/components/projectile.dart';
 import 'package:juego_happy/game/components/wall.dart';
 import 'package:juego_happy/models/character_model.dart';
 
-class EnemyBot extends SpriteComponent
+class EnemyBot extends SpriteAnimationGroupComponent<PlayerState>
     with HasGameReference<ArenaBrawlerGame>, CollisionCallbacks {
   final CharacterModel character;
   late final ValueNotifier<double> healthNotifier;
@@ -19,6 +20,10 @@ class EnemyBot extends SpriteComponent
   static const double _projectileSpeed = 200.0; // Reducido para ser más esquivable
   double _lastShotTime = 0.0;
   final double _shootCooldown;
+
+  // Variables para detección de movimiento
+  Vector2 _lastPosition = Vector2.zero();
+  bool _isMoving = false;
 
   EnemyBot({required this.character})
       : _shootCooldown = 2.0 + Random().nextDouble() * 1.0, // 2-3 seconds
@@ -30,8 +35,23 @@ class EnemyBot extends SpriteComponent
   @override
   FutureOr<void> onLoad() async {
     await super.onLoad();
-    // Cargar el sprite del personaje enemigo desde assets
-    sprite = await game.loadSprite(character.spriteAsset);
+    
+    // Cargar animaciones si es un spritesheet
+    if (character.spriteAsset.contains('spritesheet')) {
+      await _loadAnimations();
+    } else {
+      // Fallback para otros personajes (imagen estática)
+      final sprite = await game.loadSprite(character.spriteAsset);
+      animations = {
+        PlayerState.idle: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runDown: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runLeft: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runRight: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runUp: SpriteAnimation.spriteList([sprite], stepTime: 1),
+      };
+      current = PlayerState.idle;
+    }
+
     size = Vector2.all(110.0); // Tamaño más grande
     anchor = Anchor.center;
 
@@ -43,6 +63,66 @@ class EnemyBot extends SpriteComponent
       position: Vector2(0, size.y - 15),
       size: Vector2(size.x, 5),
     ));
+    
+    _lastPosition = position.clone();
+  }
+
+  Future<void> _loadAnimations() async {
+    final image = await game.images.load(character.spriteAsset);
+    
+    final frameWidth = image.width / 4;
+    final frameHeight = image.height / 4;
+    final textureSize = Vector2(frameWidth, frameHeight);
+
+    final downAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, 0),
+      ),
+    );
+
+    final leftAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, frameHeight),
+      ),
+    );
+
+    final rightAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, frameHeight * 2),
+      ),
+    );
+
+    final upAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, frameHeight * 3),
+      ),
+    );
+
+    animations = {
+      PlayerState.idle: downAnimation,
+      PlayerState.runDown: downAnimation,
+      PlayerState.runLeft: leftAnimation,
+      PlayerState.runRight: rightAnimation,
+      PlayerState.runUp: upAnimation,
+    };
+    
+    current = PlayerState.idle;
   }
 
   @override
@@ -70,6 +150,29 @@ class EnemyBot extends SpriteComponent
         _lastShotTime = currentTime;
       }
     }
+
+    // Actualizar animación basada en movimiento
+    final displacement = position - _lastPosition;
+    _isMoving = displacement.length2 > 0.001;
+    
+    if (_isMoving) {
+      if (displacement.x.abs() > displacement.y.abs()) {
+        if (displacement.x > 0) {
+          current = PlayerState.runRight;
+        } else {
+          current = PlayerState.runLeft;
+        }
+      } else {
+        if (displacement.y > 0) {
+          current = PlayerState.runDown;
+        } else {
+          current = PlayerState.runUp;
+        }
+      }
+    } else {
+      current = PlayerState.idle;
+    }
+    _lastPosition = position.clone();
   }
 
   @override

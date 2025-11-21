@@ -93,8 +93,8 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
               child: GridView.builder(
                 padding: const EdgeInsets.all(16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
+                  crossAxisCount: 4, // 4 columnas para landscape
+                  childAspectRatio: 0.8,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),

@@ -140,8 +140,14 @@ class _StoreScreenState extends State<StoreScreen> with SingleTickerProviderStat
                 ],
               ),
             ),
-            child: ListView.builder(
+            child: GridView.builder(
               padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // 2 columnas para landscape
+                childAspectRatio: 2.5, // Más ancho que alto
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
               itemCount: CharacterData.availableCharacters.length,
               itemBuilder: (context, index) {
                 final character = CharacterData.availableCharacters[index];
@@ -182,7 +188,6 @@ class _StoreCharacterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
       elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),

@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case 'adventurer':
         return 'assets/images/sprites/char_adventurer.png';
       default:
-        return 'assets/images/sprites/char_warrior.png';
+        return 'assets/images/sprites/char_adventurer.png';
     }
   }
 
@@ -197,11 +197,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // BOTONES DE MENÚ - Columna vertical a la izquierda (sin overflow)
           Positioned(
             left: 8,
-            top: screenHeight * 0.2,
-            child: SizedBox(
-              height: screenHeight * 0.6,
+            top: screenHeight * 0.25,
+            bottom: screenHeight * 0.15,
+            child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _SideMenuButton(
@@ -218,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       _loadGameData();
                     },
                   ),
-                  SizedBox(height: screenHeight * 0.02),
+                  SizedBox(height: screenHeight * 0.015),
                   _SideMenuButton(
                     iconImage: 'assets/images/icons/shop_icon.png',
                     label: 'TIENDA',
@@ -232,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       _loadGameData();
                     },
                   ),
-                  SizedBox(height: screenHeight * 0.02),
+                  SizedBox(height: screenHeight * 0.015),
                   _SideMenuButton(
                     iconImage: 'assets/images/icons/news_icon.png',
                     label: 'MAPA',
@@ -471,8 +470,8 @@ class _SideMenuButton extends StatelessWidget {
       children: [
         // Botón con diseño mejorado
         Container(
-          width: 75,
-          height: 75,
+          width: 65,
+          height: 65,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             gradient: RadialGradient(
@@ -516,10 +515,10 @@ class _SideMenuButton extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         // Label pequeño con ancho fijo
         Container(
-          width: 75,
+          width: 65,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.8),

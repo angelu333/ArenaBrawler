@@ -21,7 +21,7 @@ class LevelData {
   });
 
   static final List<LevelData> allLevels = [
-    // Mundo 1: Tutorial
+    // Nivel 1: Tutorial / Arena Básica
     const LevelData(
       id: 1,
       name: 'Primera Batalla',
@@ -30,78 +30,36 @@ class LevelData {
       enemyCount: 1,
       arenaId: 'arena_1',
       coinsReward: 50,
-      position: LevelPosition(x: 0.5, y: 0.9),
+      position: LevelPosition(x: 0.2, y: 0.5), // Izquierda
     ),
+    // Nivel 2: El Laberinto (Misión de Robo)
     const LevelData(
       id: 2,
-      name: 'Doble Problema',
-      description: 'Enfrenta a dos enemigos',
-      difficulty: 2,
-      enemyCount: 2,
-      arenaId: 'arena_1',
-      coinsReward: 75,
-      position: LevelPosition(x: 0.5, y: 0.75),
+      name: 'El Laberinto',
+      description: 'Roba el diamante y escapa',
+      difficulty: 3,
+      enemyCount: 4, // Guardias
+      arenaId: 'arena_3', // Usa assets de arena 3
+      coinsReward: 100,
+      position: LevelPosition(x: 0.5, y: 0.5), // Centro
     ),
+    // Nivel 3: Jefe Final
     const LevelData(
       id: 3,
-      name: 'Emboscada',
-      description: 'Tres enemigos te esperan',
-      difficulty: 2,
-      enemyCount: 3,
-      arenaId: 'arena_2',
-      coinsReward: 100,
-      position: LevelPosition(x: 0.3, y: 0.6),
-    ),
-    const LevelData(
-      id: 4,
-      name: 'Camino Alternativo',
-      description: 'Otra ruta, misma dificultad',
-      difficulty: 2,
-      enemyCount: 3,
-      arenaId: 'arena_2',
-      coinsReward: 100,
-      position: LevelPosition(x: 0.7, y: 0.6),
-    ),
-    const LevelData(
-      id: 5,
-      name: 'Horda',
-      description: 'Sobrevive a la horda',
-      difficulty: 3,
-      enemyCount: 5,
-      arenaId: 'arena_2',
-      coinsReward: 150,
-      position: LevelPosition(x: 0.5, y: 0.45),
-    ),
-    const LevelData(
-      id: 6,
-      name: 'Arena Mortal',
-      description: 'La arena más peligrosa',
-      difficulty: 4,
-      enemyCount: 4,
-      arenaId: 'arena_3',
-      coinsReward: 200,
-      position: LevelPosition(x: 0.5, y: 0.3),
-    ),
-    const LevelData(
-      id: 7,
       name: 'Jefe Final',
-      description: 'El enemigo más poderoso',
+      description: 'La batalla final',
       difficulty: 5,
-      enemyCount: 1, // Un jefe muy fuerte
+      enemyCount: 1, // Jefe
       arenaId: 'arena_3',
       coinsReward: 500,
-      position: LevelPosition(x: 0.5, y: 0.1),
+      position: LevelPosition(x: 0.8, y: 0.5), // Derecha
     ),
   ];
 
   // Conexiones entre niveles (qué nivel desbloquea cuál)
   static final Map<int, List<int>> connections = {
     1: [2], // Nivel 1 desbloquea nivel 2
-    2: [3, 4], // Nivel 2 desbloquea 3 y 4 (bifurcación)
-    3: [5], // Nivel 3 desbloquea 5
-    4: [5], // Nivel 4 también desbloquea 5
-    5: [6], // Nivel 5 desbloquea 6
-    6: [7], // Nivel 6 desbloquea el jefe
+    2: [3], // Nivel 2 desbloquea nivel 3
   };
 }
 

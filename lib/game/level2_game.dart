@@ -8,6 +8,7 @@ import 'package:juego_happy/game/components/diamond.dart';
 import 'package:juego_happy/game/components/exit_point.dart';
 import 'package:juego_happy/game/components/guard.dart';
 import 'package:juego_happy/game/components/joystick.dart';
+import 'package:juego_happy/game/components/shooting_joystick.dart';
 import 'package:juego_happy/game/components/maze_wall.dart'; // Importar el nuevo componente
 import 'package:juego_happy/game/components/player.dart';
 import 'package:juego_happy/models/character_model.dart';
@@ -77,6 +78,7 @@ class Level2Game extends FlameGame
 
     // Agregar joystick
     joystick = DirectionJoystick();
+    shootingJoystick = ShootingJoystick();
 
     // Agregar jugador (cerca de la salida)
     player = Player(character: playerCharacter);
@@ -84,6 +86,7 @@ class Level2Game extends FlameGame
 
     world.add(player);
     camera.viewport.add(joystick);
+    camera.viewport.add(shootingJoystick);
 
     // Agregar guardias patrullando
     _addGuards();
@@ -100,7 +103,7 @@ class Level2Game extends FlameGame
     try {
       wallSprite = await loadSprite('level2_maze_walls/wall_straight.png');
     } catch (e) {
-      print('Error cargando sprite de pared: $e');
+      // Ignorar error de carga de sprite
     }
 
     // Bordes del mapa
@@ -178,7 +181,8 @@ class Level2Game extends FlameGame
     ];
 
     // Agregar paredes del laberinto
-    if (wallSprite != null) {
+    // Si wallSprite es null, MazeWall usará el color de respaldo
+    if (wallSprite != null || true) {
       for (final rect in mazeWalls) {
         world.add(MazeWall(
           position: Vector2(rect.left, rect.top),
@@ -240,18 +244,34 @@ class Level2Game extends FlameGame
     ));
   }
 
+  late final ShootingJoystick shootingJoystick;
+  bool _wasShooting = false;
+
   @override
   void update(double dt) {
     super.update(dt);
-    if (!joystick.isDragged) {
-      return;
+    
+    // 1. Movimiento
+    if (joystick.isDragged) {
+      player.setMoveDirection(joystick.relativeDelta);
+      player.animateMovement(dt, true);
+      
+      final moveVector = joystick.relativeDelta.normalized() * player.maxSpeed * dt;
+      player.position.add(moveVector);
+    } else {
+      player.animateMovement(dt, false);
     }
 
-    player.setMoveDirection(joystick.relativeDelta);
-
-    final moveVector =
-        joystick.relativeDelta.normalized() * player.maxSpeed * dt;
-    player.position.add(moveVector);
+    // 2. Disparo
+    if (shootingJoystick.isDragged) {
+      _wasShooting = true;
+      player.setAimDirection(shootingJoystick.relativeDelta);
+    } else {
+      if (_wasShooting) {
+        _wasShooting = false;
+        player.stopAiming();
+      }
+    }
   }
 
   @override

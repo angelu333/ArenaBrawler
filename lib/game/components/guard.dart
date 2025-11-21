@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui'; // Para lerpDouble
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart'; // Importar efectos
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:juego_happy/game/components/health_bar.dart';
 import 'package:juego_happy/game/components/player.dart';
 import 'package:juego_happy/game/components/projectile.dart';
 import 'package:juego_happy/game/components/wall.dart';
+import 'package:juego_happy/game/components/maze_wall.dart';
 import 'package:juego_happy/models/character_model.dart';
 
 /// Guardia que patrulla y persigue al jugador si lo ve
@@ -18,23 +21,30 @@ class Guard extends SpriteComponent
   late final ValueNotifier<double> healthNotifier;
   late double maxSpeed;
 
-  static const double _projectileSpeed = 200.0;
-  static const double _visionRange = 250.0;
-  static const double _visionAngle = 60.0; // Grados
+  static const double _projectileSpeed = 250.0;
+  static const double _visionRange = 350.0;
+  static const double _visionAngle = 90.0; // Grados - más amplio
+  static const double _chaseRange = 500.0; // Rango de persecución más amplio
   double _lastShotTime = 0.0;
-  final double _shootCooldown = 2.5;
+  final double _shootCooldown = 2.5; // Más lento (antes 1.8)
 
   int _currentPatrolIndex = 0;
   bool _isChasing = false;
   Vector2 _facingDirection = Vector2(0, 1);
+
+  // Animación de movimiento
+  double _wobbleTimer = 0.0;
+  final double _wobbleSpeed = 10.0; // Un poco más lento que el jugador
+  final double _wobbleAmount = 0.08;
 
   Guard({
     required this.character,
     required this.patrolPoints,
     required Vector2 position,
   }) : super(position: position) {
-    maxSpeed = character.baseSpeed * 12;
-    healthNotifier = ValueNotifier(character.baseHealth);
+    maxSpeed = character.baseSpeed * 8; // Más lento (antes 12)
+    // Menos vida para que sean fáciles de matar (60% de la vida base)
+    healthNotifier = ValueNotifier(character.baseHealth * 0.6);
   }
 
   @override
@@ -105,8 +115,10 @@ class Guard extends SpriteComponent
       return;
     }
 
-    // Verificar si ve al jugador
-    if (_canSeePlayer(player)) {
+    final distanceToPlayer = (player.position - position).length;
+
+    // Verificar si ve al jugador o está en rango de persecución
+    if (_canSeePlayer(player) || (_isChasing && distanceToPlayer < _chaseRange)) {
       _isChasing = true;
       _chasePlayer(player, dt);
     } else {
@@ -124,7 +136,12 @@ class Guard extends SpriteComponent
     // Verificar ángulo de visión
     final angleToPlayer = atan2(toPlayer.y, toPlayer.x);
     final facingAngle = atan2(_facingDirection.y, _facingDirection.x);
-    final angleDiff = (angleToPlayer - facingAngle).abs();
+    var angleDiff = (angleToPlayer - facingAngle).abs();
+    
+    // Normalizar el ángulo para manejar el wrap-around
+    if (angleDiff > pi) {
+      angleDiff = 2 * pi - angleDiff;
+    }
 
     const visionAngleRad = _visionAngle * (pi / 180) / 2;
 
@@ -133,6 +150,10 @@ class Guard extends SpriteComponent
 
   void _patrol(double dt) {
     if (patrolPoints.isEmpty) return;
+
+    // Animar movimiento
+    _wobbleTimer += dt * _wobbleSpeed;
+    angle = sin(_wobbleTimer) * _wobbleAmount;
 
     final target = patrolPoints[_currentPatrolIndex];
     final toTarget = target - position;
@@ -150,19 +171,36 @@ class Guard extends SpriteComponent
   }
 
   void _chasePlayer(Player player, double dt) {
+    // Animar movimiento rápido
+    _wobbleTimer += dt * _wobbleSpeed * 1.5;
+    angle = sin(_wobbleTimer) * _wobbleAmount;
+
     final toPlayer = player.position - position;
     final distance = toPlayer.length;
+    final direction = toPlayer.normalized();
+    _facingDirection = direction;
 
-    if (distance > 150) {
-      // Perseguir
-      final direction = toPlayer.normalized();
-      _facingDirection = direction;
+    final currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+
+    if (distance > 180) {
+      // Perseguir mientras dispara
       position.add(direction * maxSpeed * dt);
-    } else {
-      // Disparar
-      final currentTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+      
+      // Disparar mientras persigue
       if (currentTime - _lastShotTime > _shootCooldown) {
-        shoot(toPlayer.normalized());
+        shoot(direction);
+        _lastShotTime = currentTime;
+      }
+    } else {
+      // Mantener distancia y disparar
+      if (distance < 120) {
+        // Retroceder un poco
+        position.add(direction * -maxSpeed * 0.5 * dt);
+      }
+      
+      // Disparar
+      if (currentTime - _lastShotTime > _shootCooldown) {
+        shoot(direction);
         _lastShotTime = currentTime;
       }
     }
@@ -170,6 +208,12 @@ class Guard extends SpriteComponent
 
   void shoot(Vector2 direction) {
     try {
+      // Efecto de retroceso
+      add(MoveEffect.by(
+        -direction * 5,
+        EffectController(duration: 0.05, alternate: true),
+      ));
+
       final gameRef = game as dynamic;
       final projectile = Projectile(
         position: position.clone(),
@@ -187,23 +231,38 @@ class Guard extends SpriteComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    if (other is Wall) {
-      final rect = toRect();
-      final otherRect = other.toRect();
-      final intersection = rect.intersect(otherRect);
+    if (other is Wall || other is MazeWall) {
+      _handleWallCollision(other);
+    }
+  }
 
-      if (intersection.width < intersection.height) {
-        if (rect.left < otherRect.left) {
-          position.x = otherRect.left - width / 2;
-        } else {
-          position.x = otherRect.right + width / 2;
-        }
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if (other is Wall || other is MazeWall) {
+      _handleWallCollision(other);
+    }
+  }
+
+  void _handleWallCollision(PositionComponent wall) {
+    final rect = toRect();
+    final otherRect = wall.toRect();
+    
+    if (!rect.overlaps(otherRect)) return;
+    
+    final intersection = rect.intersect(otherRect);
+
+    if (intersection.width < intersection.height) {
+      if (rect.center.dx < otherRect.center.dx) {
+        position.x = otherRect.left - width / 2 - 1;
       } else {
-        if (rect.top < otherRect.top) {
-          position.y = otherRect.top - height / 2;
-        } else {
-          position.y = otherRect.bottom + height / 2;
-        }
+        position.x = otherRect.right + width / 2 + 1;
+      }
+    } else {
+      if (rect.center.dy < otherRect.center.dy) {
+        position.y = otherRect.top - height / 2 - 1;
+      } else {
+        position.y = otherRect.bottom + height / 2 + 1;
       }
     }
   }
@@ -220,8 +279,36 @@ class Guard extends SpriteComponent
   void takeDamage(double damage) {
     healthNotifier.value -= damage;
     _isChasing = true; // Alertar al guardia
+    
+    // Flash rojo
+    add(ColorEffect(
+      Colors.red,
+      EffectController(duration: 0.2, alternate: true),
+    ));
+
     if (healthNotifier.value <= 0) {
-      removeFromParent();
+      _die();
     }
+  }
+
+  void _die() {
+    // Animación de muerte
+    add(ScaleEffect.to(
+      Vector2.zero(),
+      EffectController(duration: 0.5, curve: Curves.easeIn),
+      onComplete: () {
+        try {
+          final gameRef = game as dynamic;
+          gameRef.onEnemyDeath(this); // Notificar muerte para victoria
+        } catch (e) {
+          // Ignorar
+        }
+        removeFromParent();
+      },
+    ));
+    add(RotateEffect.by(
+      pi * 2,
+      EffectController(duration: 0.5),
+    ));
   }
 }

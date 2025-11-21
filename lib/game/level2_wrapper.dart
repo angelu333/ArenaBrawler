@@ -32,9 +32,8 @@ class _Level2WrapperState extends State<Level2Wrapper> {
     // Si ganó, desbloquear siguiente nivel
     if (won) {
       await _gameData.completeLevel(2, 3, 1000, 60.0);
-      // Desbloquear niveles 3 y 4 (bifurcación)
+      // Desbloquear nivel 3 (Jefe Final)
       await _gameData.unlockLevel(3);
-      await _gameData.unlockLevel(4);
     }
     
     if (mounted) {

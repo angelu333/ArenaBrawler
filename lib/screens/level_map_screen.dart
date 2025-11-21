@@ -72,38 +72,36 @@ class _LevelMapScreenState extends State<LevelMapScreen>
             ],
           ),
         ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Fondo decorativo
-              _buildBackground(),
+        child: Stack(
+          children: [
+            // Fondo decorativo
+            _buildBackground(),
 
-              // Mapa de niveles
-              CustomPaint(
-                size: Size(size.width, size.height),
-                painter: LevelPathPainter(
-                  levels: LevelData.allLevels,
-                  connections: LevelData.connections,
-                  progress: _progress,
-                ),
+            // Mapa de niveles
+            CustomPaint(
+              size: Size(size.width, size.height),
+              painter: LevelPathPainter(
+                levels: LevelData.allLevels,
+                connections: LevelData.connections,
+                progress: _progress,
               ),
+            ),
 
-              // Nodos de niveles
-              ...LevelData.allLevels.map((level) {
-                return _buildLevelNode(
-                  level,
-                  size,
-                  _isLevelUnlocked(level.id),
-                  _isLevelCompleted(level.id),
-                  _getLevelStars(level.id),
-                  level.id == _currentLevel,
-                );
-              }),
+            // Nodos de niveles
+            ...LevelData.allLevels.map((level) {
+              return _buildLevelNode(
+                level,
+                size,
+                _isLevelUnlocked(level.id),
+                _isLevelCompleted(level.id),
+                _getLevelStars(level.id),
+                level.id == _currentLevel,
+              );
+            }),
 
-              // Header
-              _buildHeader(),
-            ],
-          ),
+            // Header
+            _buildHeader(),
+          ],
         ),
       ),
     );
@@ -122,45 +120,54 @@ class _LevelMapScreenState extends State<LevelMapScreen>
       top: 0,
       left: 0,
       right: 0,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.black.withValues(alpha: 0.5),
-              Colors.transparent,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      child: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.black.withValues(alpha: 0.5),
+                Colors.transparent,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.black.withValues(alpha: 0.5),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon:
+                    const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
+                  padding: const EdgeInsets.all(8),
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            const Text(
-              'MAPA DE NIVELES',
-              style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    color: Colors.black,
-                    offset: Offset(2, 2),
-                    blurRadius: 4,
+              const SizedBox(width: 12),
+              const Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'MAPA DE NIVELES',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black,
+                          offset: Offset(2, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -174,12 +181,14 @@ class _LevelMapScreenState extends State<LevelMapScreen>
     int stars,
     bool isCurrent,
   ) {
+    final isLandscape = screenSize.width > screenSize.height;
+    final nodeSize = isLandscape ? 60.0 : 80.0;
     final x = level.position.x * screenSize.width;
     final y = level.position.y * screenSize.height;
 
     return Positioned(
-      left: x - 40,
-      top: y - 40,
+      left: x - nodeSize / 2,
+      top: y - nodeSize / 2,
       child: GestureDetector(
         onTap:
             isUnlocked ? () => _onLevelTap(level) : () => _showLockedMessage(),
@@ -195,8 +204,8 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                 children: [
                   // Nodo del nivel
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: nodeSize,
+                    height: nodeSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -235,7 +244,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                             '${level.id}',
                             style: TextStyle(
                               fontFamily: 'monospace',
-                              fontSize: 32,
+                              fontSize: isLandscape ? 24 : 32,
                               fontWeight: FontWeight.bold,
                               color: isUnlocked
                                   ? Colors.white
@@ -252,10 +261,10 @@ class _LevelMapScreenState extends State<LevelMapScreen>
 
                         // Icono de bloqueado
                         if (!isUnlocked)
-                          const Center(
+                          Center(
                             child: Icon(
                               Icons.lock,
-                              size: 40,
+                              size: isLandscape ? 30 : 40,
                               color: Colors.white70,
                             ),
                           ),
@@ -263,17 +272,17 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                         // Check de completado
                         if (isCompleted)
                           Positioned(
-                            top: 5,
-                            right: 5,
+                            top: 3,
+                            right: 3,
                             child: Container(
-                              padding: const EdgeInsets.all(4),
+                              padding: EdgeInsets.all(isLandscape ? 2 : 4),
                               decoration: const BoxDecoration(
                                 color: Colors.green,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.check,
-                                size: 20,
+                                size: isLandscape ? 14 : 20,
                                 color: Colors.white,
                               ),
                             ),
@@ -281,16 +290,16 @@ class _LevelMapScreenState extends State<LevelMapScreen>
 
                         // Indicador de jugador actual
                         if (isCurrent)
-                          const Positioned(
-                            bottom: -10,
+                          Positioned(
+                            bottom: isLandscape ? -8 : -10,
                             left: 0,
                             right: 0,
                             child: Center(
                               child: Icon(
                                 Icons.person,
-                                size: 30,
+                                size: isLandscape ? 20 : 30,
                                 color: Colors.yellow,
-                                shadows: [
+                                shadows: const [
                                   Shadow(
                                     color: Colors.black,
                                     offset: Offset(1, 1),
@@ -304,36 +313,36 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: isLandscape ? 4 : 8),
 
                   // Estrellas
-                  if (isCompleted)
+                  if (isCompleted && !isLandscape)
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: List.generate(3, (index) {
                         return Icon(
                           index < stars ? Icons.star : Icons.star_border,
-                          size: 16,
+                          size: 12,
                           color: Colors.amber,
                         );
                       }),
                     ),
 
-                  // Nombre del nivel
-                  if (isUnlocked)
+                  // Nombre del nivel (solo en vertical)
+                  if (isUnlocked && !isLandscape)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 6,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         level.name,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),

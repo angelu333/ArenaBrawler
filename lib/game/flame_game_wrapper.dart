@@ -34,12 +34,10 @@ class _FlameGameWrapperState extends State<FlameGameWrapper> {
 
   void _exitGame({bool won = false}) async {
     // Dar monedas según el nivel
+    // Dar monedas según el nivel
     int coins = 50;
-    if (widget.levelId == 2) coins = 75;
-    if (widget.levelId == 3 || widget.levelId == 4) coins = 100;
-    if (widget.levelId == 5) coins = 150;
-    if (widget.levelId == 6) coins = 200;
-    if (widget.levelId == 7) coins = 500;
+    if (widget.levelId == 2) coins = 100;
+    if (widget.levelId == 3) coins = 500;
 
     await _gameData.addCoins(coins);
 
@@ -339,102 +337,126 @@ class GameOverOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-  color: Colors.black.withAlpha((0.8 * 255).round()),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Texto GAME OVER estilo arcade/pixelado
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.red.withAlpha((0.3 * 255).round()),
-                border: Border.all(color: Colors.red, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.red.withAlpha((0.5 * 255).round()),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  ),
-                ],
-              ),
-              child: const Text(
-                'GAME OVER',
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 72,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.red,
-                  letterSpacing: 8,
-                  shadows: [
-                    Shadow(
-                      color: Colors.white,
-                      offset: Offset(2, 2),
-                    ),
-                    Shadow(
-                      color: Colors.black,
-                      offset: Offset(4, 4),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-              ),
+      color: Colors.black.withAlpha((0.8 * 255).round()),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
             ),
-
-            const SizedBox(height: 40),
-
-            // Estadísticas
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.black.withAlpha((0.5 * 255).round()),
-                border: Border.all(color: Colors.white, width: 2),
-              ),
+            child: IntrinsicHeight(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Personaje: ${game.playerCharacter.name}',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 20),
+                  // Texto GAME OVER estilo arcade/pixelado
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withAlpha((0.3 * 255).round()),
+                      border: Border.all(color: Colors.red, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withAlpha((0.5 * 255).round()),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: const Text(
+                        'GAME OVER',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 48,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.red,
+                          letterSpacing: 8,
+                          shadows: [
+                            Shadow(
+                              color: Colors.white,
+                              offset: Offset(2, 2),
+                            ),
+                            Shadow(
+                              color: Colors.black,
+                              offset: Offset(4, 4),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    '+ 50 MONEDAS',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 24,
-                      color: Colors.amber,
-                      fontWeight: FontWeight.bold,
+
+                  const SizedBox(height: 30),
+
+                  // Estadísticas
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha((0.5 * 255).round()),
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Personaje: ${game.playerCharacter.name}',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          '+ 50 MONEDAS',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 20,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  const SizedBox(height: 30),
+
+                  // Botones
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: _ArcadeButton(
+                            text: 'REINTENTAR',
+                            color: Colors.green,
+                            onPressed: onRestart,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        Flexible(
+                          child: _ArcadeButton(
+                            text: 'SALIR',
+                            color: Colors.red,
+                            onPressed: onExit,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
-
-            const SizedBox(height: 40),
-
-            // Botones
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _ArcadeButton(
-                  text: 'REINTENTAR',
-                  color: Colors.green,
-                  onPressed: onRestart,
-                ),
-                const SizedBox(width: 20),
-                _ArcadeButton(
-                  text: 'SALIR',
-                  color: Colors.red,
-                  onPressed: onExit,
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -457,7 +479,7 @@ class _ArcadeButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
           color: color,
           border: Border.all(color: Colors.white, width: 3),
@@ -469,14 +491,17 @@ class _ArcadeButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: 'monospace',
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: 2,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 2,
+            ),
           ),
         ),
       ),
@@ -499,11 +524,8 @@ class VictoryOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int coins = 50;
-    if (levelId == 2) coins = 75;
-    if (levelId == 3 || levelId == 4) coins = 100;
-    if (levelId == 5) coins = 150;
-    if (levelId == 6) coins = 200;
-    if (levelId == 7) coins = 500;
+    if (levelId == 2) coins = 100;
+    if (levelId == 3) coins = 500;
 
     return Container(
       color: Colors.black.withAlpha((0.8 * 255).round()),
