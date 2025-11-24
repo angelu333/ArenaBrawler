@@ -119,7 +119,7 @@ class _FlameGameWrapperState extends State<FlameGameWrapper> {
             );
           },
         },
-        initialActiveOverlays: const ['Hud', 'AttackButton', 'SpecialButton'],
+        initialActiveOverlays: const ['Hud'],
       ),
     );
   }
