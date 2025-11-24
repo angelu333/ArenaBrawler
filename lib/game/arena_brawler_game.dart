@@ -51,10 +51,12 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
   FutureOr<void> onLoad() async {
     await super.onLoad();
     
-    // Configurar viewport con relación de aspecto fija 4:3
-    camera.viewport = FixedAspectRatioViewport(aspectRatio: 4 / 3);
-    final viewportSize = Vector2(800, 600);
-    camera.viewfinder.visibleGameSize = viewportSize;
+    // Configurar viewport para ocupar toda la pantalla
+    // No establecemos un viewport fijo, dejamos que Flame use el tamaño del widget.
+    // Establecemos un tamaño de juego visible base para el zoom.
+    // Esto asegura que siempre veamos al menos esta área, escalada.
+    camera.viewfinder.visibleGameSize = Vector2(800, 600);
+    camera.viewfinder.anchor = Anchor.center;
 
     // Seleccionar arena según el nivel
     String arenaPath = 'arenas/arena_1.png';
@@ -89,15 +91,9 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
     // Set camera to follow the player
     camera.follow(player);
     
-    // Restrict camera to the arena bounds (inset by half viewport to keep view inside)
-    final halfViewport = viewportSize / 2;
-    final cameraBounds = Rectangle.fromLTWH(
-      halfViewport.x, 
-      halfViewport.y, 
-      worldSize.x - viewportSize.x, 
-      worldSize.y - viewportSize.y
-    );
-    camera.setBounds(cameraBounds);
+    // Restrict camera to the arena bounds
+    // Usamos el tamaño del mundo completo. La cámara se encargará de no mostrar nada fuera.
+    camera.setBounds(Rectangle.fromLTWH(0, 0, worldSize.x, worldSize.y));
   }
 
   late final ShootingJoystick shootingJoystick;
@@ -114,6 +110,9 @@ class ArenaBrawlerGame extends FlameGame with HasCollisionDetection {
       
       final moveVector = joystick.relativeDelta.normalized() * player.maxSpeed * dt;
       player.position.add(moveVector);
+      
+      // Mantener al jugador dentro de los límites del mundo
+      player.position.clamp(Vector2.zero(), worldSize);
     } else {
       player.animateMovement(dt, false);
     }
