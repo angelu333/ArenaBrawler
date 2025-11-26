@@ -7,6 +7,7 @@ class CharacterData {
       name: 'Aventurero Novato',
       description: 'Un valiente aventurero que recién comienza su viaje.',
       spriteAsset: 'characters/Adventurer/walk_spritesheet.png',
+      profileAsset: 'sprites/char_adventurer.png',
       price: 0,
       baseHealth: 100.0,
       baseSpeed: 5.0,
@@ -21,8 +22,10 @@ class CharacterData {
     const CharacterModel(
       id: 'warrior',
       name: 'Guardián Férreo',
-      description: 'Un guerrero robusto, experto en defensa y combate cuerpo a cuerpo.',
+      description:
+          'Un guerrero robusto, experto en defensa y combate cuerpo a cuerpo.',
       spriteAsset: 'characters/Warrior/walk_spritesheet.png',
+      profileAsset: 'sprites/char_warrior.png',
       price: 500,
       baseHealth: 150.0,
       baseSpeed: 4.0,
@@ -36,8 +39,10 @@ class CharacterData {
     const CharacterModel(
       id: 'mage',
       name: 'Archimago Arcano',
-      description: 'Un maestro de las artes arcanas, capaz de desatar poderosos hechizos.',
+      description:
+          'Un maestro de las artes arcanas, capaz de desatar poderosos hechizos.',
       spriteAsset: 'characters/Mage/walk_spritesheet.png',
+      profileAsset: 'sprites/char_mage.png',
       price: 750,
       baseHealth: 80.0,
       baseSpeed: 4.5,
@@ -53,6 +58,7 @@ class CharacterData {
       name: 'Sombra Veloz',
       description: 'Un ágil pícaro, letal en el sigilo y los ataques rápidos.',
       spriteAsset: 'characters/Rogue/walk_spritesheet.png',
+      profileAsset: 'sprites/char_rogue.png',
       price: 600,
       baseHealth: 90.0,
       baseSpeed: 6.0,
@@ -67,8 +73,10 @@ class CharacterData {
     const CharacterModel(
       id: 'archer',
       name: 'Explorador Certero',
-      description: 'Un explorador con una puntería impecable, especialista en ataques a distancia.',
+      description:
+          'Un explorador con una puntería impecable, especialista en ataques a distancia.',
       spriteAsset: 'characters/Archer/walk_spritesheet.png',
+      profileAsset: 'sprites/char_archer.png',
       price: 550,
       baseHealth: 95.0,
       baseSpeed: 5.5,
@@ -82,8 +90,10 @@ class CharacterData {
     const CharacterModel(
       id: 'healer',
       name: 'Clérigo Benevolente',
-      description: 'Un sanador devoto, que protege a sus aliados con magia curativa.',
+      description:
+          'Un sanador devoto, que protege a sus aliados con magia curativa.',
       spriteAsset: 'characters/Healer/walk_spritesheet.png',
+      profileAsset: 'sprites/char_healer.png',
       price: 700,
       baseHealth: 110.0,
       baseSpeed: 4.2,

@@ -7,7 +7,7 @@ import 'package:juego_happy/widgets/character_unlocked_splash.dart';
 
 class CharacterSelectionScreen extends StatefulWidget {
   final bool selectOnly;
-  
+
   const CharacterSelectionScreen({super.key, this.selectOnly = false});
 
   @override
@@ -25,6 +25,201 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final owned = await _gameData.getOwnedCharacters();
+    final selected = await _gameData.getSelectedCharacter();
+    setState(() {
+      _ownedCharacters = owned;
+      _selectedCharacterId = selected;
+      _isLoading = false;
+    });
+  }
+
+  void _selectCharacter(String characterId) {
+    setState(() {
+      _selectedCharacterId = characterId;
+    });
+    _gameData.saveSelectedCharacter(characterId);
+  }
+
+  Future<void> _purchaseCharacter(CharacterModel character) async {
+    // Obtener monedas actuales
+    final currentCoins = await _gameData.getCoins();
+    
+    // Verificar si tiene suficientes monedas
+    if (currentCoins < character.price) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  'Necesitas ${character.price - currentCoins} monedas más',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    
+    // Descontar monedas
+    await _gameData.saveCoins(currentCoins - character.price);
+    
+    // Agregar personaje a owned usando el método existente
+    await _gameData.addOwnedCharacter(character.id);
+    
+    // Mostrar splash screen premium
+    if (mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => CharacterUnlockedSplash(character: character),
+      );
+    }
+    
+    // Recargar datos
+    await _loadData();
+    
+    // Seleccionar el personaje recién comprado
+    _selectCharacter(character.id);
+  }
+
+  void _startGame() {
+    if (widget.selectOnly) {
+      // Solo seleccionar y volver
+      Navigator.pop(context);
+    } else {
+      // Ir al mapa de niveles
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LevelMapScreen(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final allCharacters = CharacterData.availableCharacters;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Selecciona tu Personaje'),
+        backgroundColor: const Color(0xFF1A0F2E),
+        foregroundColor: Colors.white,
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1A0F2E), // Deep dark purple
+              Color(0xFF0D1B2A), // Dark navy blue
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, // 3 columnas para mejor visualización
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: allCharacters.length,
+                itemBuilder: (context, index) {
+                  final character = allCharacters[index];
+                  final isOwned = _ownedCharacters.contains(character.id);
+                  final isSelected = character.id == _selectedCharacterId;
+
+                  return _CharacterCard(
+                    character: character,
+                    isOwned: isOwned,
+                    isSelected: isSelected,
+                    onTap: () {
+                      if (isOwned) {
+                        _selectCharacter(character.id);
+                      } else {
+                        _purchaseCharacter(character);
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+
+            // Botón para iniciar juego o confirmar selección
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: _startGame,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 8,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.play_arrow, size: 32),
+                      const SizedBox(width: 12),
+                      Text(
+                        widget.selectOnly ? 'CONFIRMAR' : 'INICIAR BATALLA',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CharacterCard extends StatelessWidget {
+  final CharacterModel character;
+  final bool isOwned;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CharacterCard({
+    required this.character,
+    required this.isOwned,
+    required this.isSelected,
+    required this.onTap,
+  });
   }
 
   Future<void> _loadData() async {

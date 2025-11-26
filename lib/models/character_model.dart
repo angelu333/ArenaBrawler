@@ -1,10 +1,10 @@
 enum SpecialAbility {
-  rapidFire,      // Disparo rápido
-  superShot,      // Disparo poderoso
-  heal,           // Curación
-  speedBoost,     // Velocidad aumentada
-  shield,         // Escudo temporal
-  multiShot,      // Disparo múltiple
+  rapidFire, // Disparo rápido
+  superShot, // Disparo poderoso
+  heal, // Curación
+  speedBoost, // Velocidad aumentada
+  shield, // Escudo temporal
+  multiShot, // Disparo múltiple
 }
 
 class CharacterModel {
@@ -12,6 +12,7 @@ class CharacterModel {
   final String name;
   final String description;
   final String spriteAsset;
+  final String profileAsset; // Imagen de perfil (no spritesheet)
   final int price;
   final double baseHealth;
   final double baseSpeed;
@@ -29,6 +30,7 @@ class CharacterModel {
     required this.name,
     required this.description,
     required this.spriteAsset,
+    required this.profileAsset,
     required this.price,
     required this.baseHealth,
     required this.baseSpeed,
@@ -48,12 +50,15 @@ class CharacterModel {
       name: json['name'] as String,
       description: json['description'] as String,
       spriteAsset: json['spriteAsset'] as String,
+      profileAsset:
+          json['profileAsset'] as String? ?? 'sprites/char_${json['id']}.png',
       price: json['price'] as int,
       baseHealth: (json['baseHealth'] as num).toDouble(),
       baseSpeed: (json['baseSpeed'] as num).toDouble(),
       attackDamage: (json['attackDamage'] as num).toDouble(),
       attackCooldownSec: (json['attackCooldownSec'] as num).toDouble(),
-      specialAbility: SpecialAbility.values[json['specialAbility'] as int? ?? 0],
+      specialAbility:
+          SpecialAbility.values[json['specialAbility'] as int? ?? 0],
       specialAbilityName: json['specialAbilityName'] as String? ?? '',
       specialAbilityDescription: json['specialAbilityDescription'] as String? ?? '',
       specialAbilityCooldown: (json['specialAbilityCooldown'] as num?)?.toDouble() ?? 10.0,
@@ -68,6 +73,7 @@ class CharacterModel {
       'name': name,
       'description': description,
       'spriteAsset': spriteAsset,
+      'profileAsset': profileAsset,
       'price': price,
       'baseHealth': baseHealth,
       'baseSpeed': baseSpeed,

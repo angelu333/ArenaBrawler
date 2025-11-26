@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/game/components/player.dart';
 
 /// Punto de salida del nivel
 class ExitPoint extends RectangleComponent
-    with HasGameReference<ArenaBrawlerGame>, CollisionCallbacks {
+    with HasGameReference<FlameGame>, CollisionCallbacks {
   final bool requiresDiamond;
   bool _playerInside = false;
 
@@ -33,7 +33,7 @@ class ExitPoint extends RectangleComponent
 
     // Dibujar puerta/salida
     final paint = Paint()
-  ..color = Colors.green.withAlpha((0.5 * 255).round())
+      ..color = Colors.green.withAlpha((0.5 * 255).round())
       ..style = PaintingStyle.fill;
 
     canvas.drawRect(size.toRect(), paint);

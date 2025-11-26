@@ -28,7 +28,8 @@ class Level2Game extends FlameGame
   Level2Game({required this.playerCharacter});
 
   @override
-  Color backgroundColor() => const Color(0xFF1a1a2e); // Azul muy oscuro para nivel 2
+  Color backgroundColor() =>
+      const Color(0xFF1a1a2e); // Azul muy oscuro para nivel 2
 
   @override
   FutureOr<void> onLoad() async {
@@ -96,18 +97,18 @@ class Level2Game extends FlameGame
   }
 
   Future<void> _createMaze() async {
-    const wallThickness = 40.0; // Más grueso para que se vea mejor
-    
+    const wallThickness = 60.0; // Muros más gruesos y visibles
+
     // Cargar sprite de pared
     Sprite? wallSprite;
     try {
-      wallSprite = await loadSprite('level2_maze_walls/wall_straight.png');
+      wallSprite = await loadSprite('level2_maze_walls/stone_wall.png');
     } catch (e) {
       // Ignorar error de carga de sprite
     }
 
     // Bordes del mapa
-    if (wallSprite != null) {
+    if (wallSprite != null || true) {
       world.add(MazeWall(
         position: Vector2(0, 0),
         size: Vector2(worldSize.x, wallThickness),
@@ -130,58 +131,54 @@ class Level2Game extends FlameGame
       ));
     }
 
-    // Laberinto interior - Diseño complejo
+    // Laberinto interior - Diseño más amplio y claro
+    // Pasillos de al menos 200px de ancho
     final mazeWalls = [
-      // Paredes horizontales
-      const Rect.fromLTWH(300, 300, 400, 20),
-      const Rect.fromLTWH(800, 300, 400, 20),
-      const Rect.fromLTWH(1400, 300, 400, 20),
-      
-      const Rect.fromLTWH(400, 600, 500, 20),
-      const Rect.fromLTWH(1100, 600, 500, 20),
-      
-      const Rect.fromLTWH(300, 900, 400, 20),
-      const Rect.fromLTWH(900, 900, 600, 20),
-      
-      const Rect.fromLTWH(400, 1200, 500, 20),
-      const Rect.fromLTWH(1200, 1200, 400, 20),
-      
-      const Rect.fromLTWH(300, 1500, 600, 20),
-      const Rect.fromLTWH(1100, 1500, 500, 20),
+      // Estructura central (alrededor del diamante)
+      Rect.fromLTWH(
+          worldSize.x / 2 - 300, worldSize.y / 2 - 300, 200, wallThickness),
+      Rect.fromLTWH(
+          worldSize.x / 2 + 100, worldSize.y / 2 - 300, 200, wallThickness),
+      Rect.fromLTWH(
+          worldSize.x / 2 - 300, worldSize.y / 2 + 300, 200, wallThickness),
+      Rect.fromLTWH(
+          worldSize.x / 2 + 100, worldSize.y / 2 + 300, 200, wallThickness),
 
-      // Paredes verticales
-      const Rect.fromLTWH(600, 100, 20, 400),
-      const Rect.fromLTWH(1200, 100, 20, 400),
-      const Rect.fromLTWH(1800, 100, 20, 400),
-      
-      const Rect.fromLTWH(400, 500, 20, 300),
-      const Rect.fromLTWH(1000, 500, 20, 300),
-      const Rect.fromLTWH(1600, 500, 20, 300),
-      
-      const Rect.fromLTWH(700, 800, 20, 400),
-      const Rect.fromLTWH(1300, 800, 20, 400),
-      const Rect.fromLTWH(1900, 800, 20, 400),
-      
-      const Rect.fromLTWH(500, 1100, 20, 300),
-      const Rect.fromLTWH(1100, 1100, 20, 300),
-      const Rect.fromLTWH(1700, 1100, 20, 300),
+      Rect.fromLTWH(
+          worldSize.x / 2 - 300, worldSize.y / 2 - 300, wallThickness, 200),
+      Rect.fromLTWH(
+          worldSize.x / 2 + 300, worldSize.y / 2 - 300, wallThickness, 200),
+      Rect.fromLTWH(
+          worldSize.x / 2 - 300, worldSize.y / 2 + 100, wallThickness, 200),
+      Rect.fromLTWH(
+          worldSize.x / 2 + 300, worldSize.y / 2 + 100, wallThickness, 200),
 
-      // Habitaciones y pasillos
-      const Rect.fromLTWH(800, 700, 300, 20),
-      const Rect.fromLTWH(1400, 700, 300, 20),
-      
-      const Rect.fromLTWH(900, 400, 20, 200),
-      const Rect.fromLTWH(1500, 400, 20, 200),
-      
-      // Obstáculos cerca del centro
-      Rect.fromLTWH(worldSize.x / 2 - 200, worldSize.y / 2 - 100, 150, 20),
-      Rect.fromLTWH(worldSize.x / 2 + 50, worldSize.y / 2 - 100, 150, 20),
-      Rect.fromLTWH(worldSize.x / 2 - 200, worldSize.y / 2 + 80, 150, 20),
-      Rect.fromLTWH(worldSize.x / 2 + 50, worldSize.y / 2 + 80, 150, 20),
+      // Bloques grandes para definir áreas
+      // Area Superior Izquierda
+      Rect.fromLTWH(400, 400, 300, wallThickness),
+      Rect.fromLTWH(400, 400, wallThickness, 400),
+
+      // Area Superior Derecha
+      Rect.fromLTWH(1700, 400, 300, wallThickness),
+      Rect.fromLTWH(2000, 400, wallThickness, 400),
+
+      // Area Inferior Izquierda
+      Rect.fromLTWH(400, 1400, 300, wallThickness),
+      Rect.fromLTWH(400, 1000, wallThickness, 400),
+
+      // Area Inferior Derecha
+      Rect.fromLTWH(1700, 1400, 300, wallThickness),
+      Rect.fromLTWH(2000, 1000, wallThickness, 400),
+
+      // Muros divisorios centrales
+      Rect.fromLTWH(1000, 200, wallThickness, 400),
+      Rect.fromLTWH(1400, 200, wallThickness, 400),
+
+      Rect.fromLTWH(1000, 1200, wallThickness, 400),
+      Rect.fromLTWH(1400, 1200, wallThickness, 400),
     ];
 
     // Agregar paredes del laberinto
-    // Si wallSprite es null, MazeWall usará el color de respaldo
     if (wallSprite != null || true) {
       for (final rect in mazeWalls) {
         world.add(MazeWall(
@@ -199,47 +196,43 @@ class Level2Game extends FlameGame
       orElse: () => CharacterData.availableCharacters[1],
     );
 
-    // Guardia 1 - Patrulla superior
+    // Guardia 1 - Patrulla superior (Pasillo ancho)
     world.add(Guard(
       character: guardCharacter,
-      position: Vector2(800, 400),
+      position: Vector2(800, 500), // Centrado en y=500
       patrolPoints: [
-        Vector2(600, 400),
-        Vector2(1200, 400),
-        Vector2(1200, 600),
-        Vector2(600, 600),
+        Vector2(600, 500),
+        Vector2(1000, 500),
       ],
     ));
 
-    // Guardia 2 - Patrulla central
+    // Guardia 2 - Patrulla central izquierda (Pasillo vertical)
     world.add(Guard(
       character: guardCharacter,
-      position: Vector2(worldSize.x / 2 - 300, worldSize.y / 2),
+      position: Vector2(500, 800), // Centrado en x=500
       patrolPoints: [
-        Vector2(worldSize.x / 2 - 300, worldSize.y / 2 - 200),
-        Vector2(worldSize.x / 2 - 300, worldSize.y / 2 + 200),
+        Vector2(500, 700),
+        Vector2(500, 1000),
       ],
     ));
 
-    // Guardia 3 - Patrulla derecha
+    // Guardia 3 - Patrulla central derecha (Pasillo vertical)
     world.add(Guard(
       character: guardCharacter,
-      position: Vector2(worldSize.x / 2 + 300, worldSize.y / 2),
+      position: Vector2(1800, 800), // Centrado en x=1800
       patrolPoints: [
-        Vector2(worldSize.x / 2 + 300, worldSize.y / 2 - 200),
-        Vector2(worldSize.x / 2 + 300, worldSize.y / 2 + 200),
+        Vector2(1800, 700),
+        Vector2(1800, 1000),
       ],
     ));
 
-    // Guardia 4 - Patrulla inferior
+    // Guardia 4 - Patrulla inferior (Pasillo horizontal)
     world.add(Guard(
       character: guardCharacter,
-      position: Vector2(1200, 1400),
+      position: Vector2(1200, 1300), // Centrado en y=1300
       patrolPoints: [
-        Vector2(800, 1400),
-        Vector2(1600, 1400),
-        Vector2(1600, 1600),
-        Vector2(800, 1600),
+        Vector2(900, 1300),
+        Vector2(1500, 1300),
       ],
     ));
   }
@@ -250,13 +243,14 @@ class Level2Game extends FlameGame
   @override
   void update(double dt) {
     super.update(dt);
-    
+
     // 1. Movimiento
     if (joystick.isDragged) {
       player.setMoveDirection(joystick.relativeDelta);
       player.animateMovement(dt, true);
-      
-      final moveVector = joystick.relativeDelta.normalized() * player.maxSpeed * dt;
+
+      final moveVector =
+          joystick.relativeDelta.normalized() * player.maxSpeed * dt;
       player.position.add(moveVector);
     } else {
       player.animateMovement(dt, false);
