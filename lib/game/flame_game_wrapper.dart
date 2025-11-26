@@ -4,6 +4,7 @@ import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/models/character_model.dart';
 import 'package:juego_happy/models/level_data.dart';
 import 'package:juego_happy/services/game_data_service.dart';
+import 'package:juego_happy/screens/victory_video_screen.dart';
 
 class FlameGameWrapper extends StatefulWidget {
   final CharacterModel selectedCharacter;
@@ -509,7 +510,7 @@ class _ArcadeButton extends StatelessWidget {
   }
 }
 
-class VictoryOverlay extends StatelessWidget {
+class VictoryOverlay extends StatefulWidget {
   final ArenaBrawlerGame game;
   final int levelId;
   final VoidCallback onContinue;
@@ -522,107 +523,290 @@ class VictoryOverlay extends StatelessWidget {
   });
 
   @override
+  State<VictoryOverlay> createState() => _VictoryOverlayState();
+}
+
+class _VictoryOverlayState extends State<VictoryOverlay> {
+  bool _showVideo = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Verificar si el personaje tiene video de victoria
+    final charId = widget.game.playerCharacter.id;
+    if (charId == 'healer' || charId == 'default' || charId == 'rogue') {
+      // Pequeño delay para asegurar que el overlay esté montado
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() {
+            _showVideo = true;
+          });
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Si debemos mostrar video, mostrar la pantalla de video
+    final charId = widget.game.playerCharacter.id;
+    if (_showVideo && (charId == 'healer' || charId == 'default' || charId == 'rogue')) {
+      return _buildVideoVictory(context);
+    }
+
+    // Pantalla de victoria normal para otros personajes
+    return _buildNormalVictory(context);
+  }
+
+  Widget _buildVideoVictory(BuildContext context) {
+    // Importar la pantalla de video
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Transición suave antes del video
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 1000),
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.scale(
+                      scale: 0.8 + (0.2 * value),
+                      child: child,
+                    ),
+                  );
+                },
+                onEnd: () {
+                  // Después de la animación, navegar a la pantalla de video
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    if (!mounted) return;
+                    
+                    final navigator = Navigator.of(context);
+                    navigator.push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          // Importar dinámicamente
+                          return FutureBuilder(
+                            future: _loadVideoScreen(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              }
+                              return Container(
+                                color: Colors.black,
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 800),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    ).then((_) {
+                      widget.onContinue();
+                    });
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.2),
+                    border: Border.all(color: Colors.green, width: 4),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.6),
+                        blurRadius: 30,
+                        spreadRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '¡VICTORIA!',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 64,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.green,
+                            letterSpacing: 12,
+                            shadows: [
+                              Shadow(
+                                color: Colors.white,
+                                offset: Offset(0, 0),
+                                blurRadius: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          widget.game.playerCharacter.name,
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<Widget> _loadVideoScreen() async {
     int coins = 50;
-    if (levelId == 2) coins = 100;
-    if (levelId == 3) coins = 500;
+    if (widget.levelId == 2) coins = 100;
+    if (widget.levelId == 3) coins = 500;
+
+    return VictoryVideoScreen(
+      onComplete: () {
+        Navigator.of(context).pop();
+      },
+      characterName: widget.game.playerCharacter.name,
+      levelId: widget.levelId,
+      coins: coins,
+    );
+  }
+
+  Widget _buildNormalVictory(BuildContext context) {
+    int coins = 50;
+    if (widget.levelId == 2) coins = 100;
+    if (widget.levelId == 3) coins = 500;
 
     return Container(
       color: Colors.black.withAlpha((0.8 * 255).round()),
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Texto VICTORIA estilo arcade
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.green.withAlpha((0.3 * 255).round()),
-                border: Border.all(color: Colors.green, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withAlpha((0.5 * 255).round()),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  ),
-                ],
-              ),
-              child: const Text(
-                '¡VICTORIA!',
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 72,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.green,
-                  letterSpacing: 8,
-                  shadows: [
-                    Shadow(
-                      color: Colors.white,
-                      offset: Offset(2, 2),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Texto VICTORIA estilo arcade
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.green.withAlpha((0.3 * 255).round()),
+                  border: Border.all(color: Colors.green, width: 4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withAlpha((0.5 * 255).round()),
+                      blurRadius: 20,
+                      spreadRadius: 5,
                     ),
-                    Shadow(
-                      color: Colors.black,
-                      offset: Offset(4, 4),
-                      blurRadius: 8,
+                  ],
+                ),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '¡VICTORIA!',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 72,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.green,
+                      letterSpacing: 8,
+                      shadows: [
+                        Shadow(
+                          color: Colors.white,
+                          offset: Offset(2, 2),
+                        ),
+                        Shadow(
+                          color: Colors.black,
+                          offset: Offset(4, 4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Estadísticas
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha((0.5 * 255).round()),
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Nivel ${widget.levelId} Completado',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Personaje: ${widget.game.playerCharacter.name}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '+ $coins MONEDAS',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 24,
+                        color: Colors.amber,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 40),
+              const SizedBox(height: 40),
 
-            // Estadísticas
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.black.withAlpha((0.5 * 255).round()),
-                border: Border.all(color: Colors.white, width: 2),
+              // Botón continuar
+              _ArcadeButton(
+                text: 'CONTINUAR',
+                color: Colors.green,
+                onPressed: widget.onContinue,
               ),
-              child: Column(
-                children: [
-                  Text(
-                    'Nivel $levelId Completado',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Personaje: ${game.playerCharacter.name}',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '+ $coins MONEDAS',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 24,
-                      color: Colors.amber,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // Botón continuar
-            _ArcadeButton(
-              text: 'CONTINUAR',
-              color: Colors.green,
-              onPressed: onContinue,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'home_screen.dart';
+import 'package:juego_happy/services/audio_service.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({Key? key}) : super(key: key);
@@ -11,6 +12,7 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen>
     with TickerProviderStateMixin {
+  final AudioService _audioService = AudioService();
   double _progress = 0.0;
   String _loadingText = 'Cargando...';
   late AnimationController _fadeController;
@@ -22,6 +24,9 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   void initState() {
     super.initState();
+    
+    // Iniciar música de carga
+    _audioService.playLoadingMusic();
 
     // Configurar animación de fade-in para el logo
     _fadeController = AnimationController(
@@ -87,6 +92,8 @@ class _LoadingScreenState extends State<LoadingScreen>
   void dispose() {
     _fadeController.dispose();
     _bounceController.dispose();
+    // No detenemos la música aquí porque queremos que la transición sea suave
+    // o que el HomeScreen se encargue de cambiarla
     super.dispose();
   }
 

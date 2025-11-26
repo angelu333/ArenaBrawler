@@ -4,6 +4,7 @@ import 'package:juego_happy/screens/character_selection_screen.dart';
 import 'package:juego_happy/screens/level_map_screen.dart';
 import 'package:juego_happy/screens/store_screen.dart';
 import 'package:juego_happy/services/game_data_service.dart';
+import 'package:juego_happy/services/audio_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final GameDataService _gameData = GameDataService();
+  final AudioService _audioService = AudioService();
   int _coins = 0;
   final int _gems = 50;
   String _selectedCharacter = 'default';
@@ -25,6 +27,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _loadGameData();
+    
+    // Iniciar música de menú
+    _audioService.playMenuMusic();
 
     _breatheController = AnimationController(
       vsync: this,
@@ -72,6 +77,39 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _addFreeCoins() async {
+    // Dar 100 monedas gratis cada vez que se presiona
+    final newCoins = _coins + 100;
+    await _gameData.saveCoins(newCoins);
+    setState(() {
+      _coins = newCoins;
+    });
+    
+    // Mostrar mensaje
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.monetization_on, color: Colors.yellow),
+              const SizedBox(width: 8),
+              const Text(
+                '¡+100 monedas gratis!',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -90,7 +128,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.purple.shade900, Colors.blue.shade900],
+                      colors: [
+                        const Color(0xFF1A0F2E), // Deep dark purple
+                        const Color(0xFF0D1B2A), // Dark navy blue
+                      ],
                     ),
                   ),
                 );
@@ -98,10 +139,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
 
-          // Overlay oscuro
+          // Atmospheric gradient overlay for depth
           Positioned.fill(
             child: Container(
-              color: Colors.black.withValues(alpha: 0.2),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.4),
+                    Colors.black.withValues(alpha: 0.1),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.3, 0.7],
+                ),
+              ),
+            ),
+          ),
+
+          // Vignette effect for cinematic look
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 1.0,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.3),
+                  ],
+                  stops: const [0.5, 1.0],
+                ),
+              ),
             ),
           ),
 
@@ -116,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             },
           ),
 
-          // PERSONAJE GIGANTE - Parado en el suelo
+          // PERSONAJE GIGANTE - Parado en el suelo con iluminación mejorada
           Positioned(
             left: 0,
             right: 0,
@@ -132,10 +201,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     height: screenHeight * 0.75,
                     decoration: BoxDecoration(
                       boxShadow: [
+                        // Main character glow
                         BoxShadow(
-                          color: Colors.cyan.withValues(alpha: 0.5),
+                          color: Colors.cyan.withValues(alpha: 0.4),
+                          blurRadius: 100,
+                          spreadRadius: 20,
+                        ),
+                        // Secondary purple glow for depth
+                        BoxShadow(
+                          color: Colors.purple.withValues(alpha: 0.3),
                           blurRadius: 80,
-                          spreadRadius: 30,
+                          spreadRadius: 40,
+                        ),
+                        // Ground shadow
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          blurRadius: 60,
+                          spreadRadius: -10,
+                          offset: const Offset(0, 50),
+                        ),
+                        // Rim light effect
+                        BoxShadow(
+                          color: Colors.yellow.withValues(alpha: 0.2),
+                          blurRadius: 120,
+                          spreadRadius: 10,
                         ),
                       ],
                     ),
@@ -168,10 +257,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   // Recursos
                   Row(
                     children: [
-                      _ResourceBar(
-                        icon: 'assets/images/coins/coin_icon.png',
-                        amount: _coins,
-                        accentColor: const Color(0xFFFFA726),
+                      GestureDetector(
+                        onTap: _addFreeCoins,
+                        child: _ResourceBar(
+                          icon: 'assets/images/coins/coin_icon.png',
+                          amount: _coins,
+                          accentColor: const Color(0xFFFFA726),
+                          showAddIcon: true, // Mostrar icono "+" para indicar que es clickeable
+                        ),
                       ),
                       const SizedBox(width: 10),
                       _ResourceBar(
@@ -194,59 +287,100 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
 
-          // BOTONES DE MENÚ - Columna vertical a la izquierda (sin overflow)
+          // Title text only - No card blocking character
+          Positioned(
+            top: 90,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                '¡Prepárate para la batalla!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18, // Reducido de 24 a 18
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'GameFont',
+                  letterSpacing: 2,
+                  shadows: [
+                    // Black outline for readability
+                    for (var i = 0; i < 8; i++)
+                      Shadow(
+                        color: Colors.black,
+                        offset: Offset(
+                          cos(i * pi / 4) * 3,
+                          sin(i * pi / 4) * 3,
+                        ),
+                        blurRadius: 0,
+                      ),
+                    // Cyan glow
+                    Shadow(
+                      color: Colors.cyan.withValues(alpha: 0.8),
+                      blurRadius: 20,
+                      offset: Offset.zero,
+                    ),
+                    Shadow(
+                      color: Colors.cyan.withValues(alpha: 0.5),
+                      blurRadius: 40,
+                      offset: Offset.zero,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // BOTONES DE MENÚ - Columna vertical a la izquierda (sin scroll)
           Positioned(
             left: 8,
-            top: screenHeight * 0.25,
-            bottom: screenHeight * 0.15,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _SideMenuButton(
-                    iconImage: 'assets/images/icons/heroes_icon.png',
-                    label: 'PERSONAJES',
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const CharacterSelectionScreen(selectOnly: true),
-                        ),
-                      );
-                      _loadGameData();
-                    },
-                  ),
-                  SizedBox(height: screenHeight * 0.015),
-                  _SideMenuButton(
-                    iconImage: 'assets/images/icons/shop_icon.png',
-                    label: 'TIENDA',
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const StoreScreen(),
-                        ),
-                      );
-                      _loadGameData();
-                    },
-                  ),
-                  SizedBox(height: screenHeight * 0.015),
-                  _SideMenuButton(
-                    iconImage: 'assets/images/icons/news_icon.png',
-                    label: 'MAPA',
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LevelMapScreen(),
-                        ),
-                      );
-                      _loadGameData();
-                    },
-                  ),
-                ],
-              ),
+            top: screenHeight * 0.28,
+            bottom: screenHeight * 0.18,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _SideMenuButton(
+                  iconImage: 'assets/images/icons/heroes_icon.png',
+                  label: 'PERSONAJES',
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const CharacterSelectionScreen(selectOnly: true),
+                      ),
+                    );
+                    _loadGameData();
+                  },
+                ),
+                const SizedBox(height: 8),
+                _SideMenuButton(
+                  iconImage: 'assets/images/icons/shop_icon.png',
+                  label: 'TIENDA',
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StoreScreen(),
+                      ),
+                    );
+                    _loadGameData();
+                  },
+                ),
+                const SizedBox(height: 8),
+                _SideMenuButton(
+                  iconImage: 'assets/images/icons/news_icon.png',
+                  label: 'MAPA',
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LevelMapScreen(),
+                      ),
+                    );
+                    _loadGameData();
+                  },
+                ),
+              ],
             ),
           ),
 
@@ -282,17 +416,37 @@ class ParticlesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 50; i++) {
       final x = (random.nextDouble() * size.width);
       final y = ((random.nextDouble() * size.height) +
               (animationValue * size.height * 0.5)) %
           size.height;
-      final radius = random.nextDouble() * 3 + 1;
+      final radius = random.nextDouble() * 4 + 1;
+      
+      // Varied particle colors for more magical effect
+      final colorChoice = i % 3;
+      Color particleColor;
+      if (colorChoice == 0) {
+        particleColor = Colors.white.withValues(alpha: 0.4);
+      } else if (colorChoice == 1) {
+        particleColor = Colors.cyan.withValues(alpha: 0.3);
+      } else {
+        particleColor = Colors.purple.withValues(alpha: 0.25);
+      }
+      
+      final paint = Paint()
+        ..color = particleColor
+        ..style = PaintingStyle.fill;
+      
       canvas.drawCircle(Offset(x, y), radius, paint);
+      
+      // Add glow effect to some particles
+      if (i % 5 == 0) {
+        final glowPaint = Paint()
+          ..color = particleColor.withValues(alpha: 0.1)
+          ..style = PaintingStyle.fill;
+        canvas.drawCircle(Offset(x, y), radius * 2, glowPaint);
+      }
     }
   }
 
@@ -368,11 +522,13 @@ class _ResourceBar extends StatelessWidget {
   final String icon;
   final int amount;
   final Color accentColor;
+  final bool showAddIcon;
 
   const _ResourceBar({
     required this.icon,
     required this.amount,
     required this.accentColor,
+    this.showAddIcon = false,
   });
 
   @override
@@ -445,6 +601,25 @@ class _ResourceBar extends StatelessWidget {
               ),
             ),
           ),
+          // Icono "+" para indicar que es clickeable
+          if (showAddIcon)
+            Container(
+              margin: const EdgeInsets.only(right: 4),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white,
+                  width: 2,
+                ),
+              ),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
         ],
       ),
     );
@@ -470,8 +645,8 @@ class _SideMenuButton extends StatelessWidget {
       children: [
         // Botón con diseño mejorado
         Container(
-          width: 65,
-          height: 65,
+          width: 70, // Aumentado de 65 a 70
+          height: 70, // Aumentado de 65 a 70
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             gradient: RadialGradient(
@@ -516,10 +691,10 @@ class _SideMenuButton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 3),
-        // Label pequeño con ancho fijo
+        // Label sin overflow
         Container(
-          width: 65,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          width: 78, // Aumentado de 75 a 78
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 3),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(6),
@@ -528,28 +703,17 @@ class _SideMenuButton extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 7,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'GameFont',
-                shadows: [
-                  for (var i = 0; i < 8; i++)
-                    Shadow(
-                      color: Colors.black,
-                      offset: Offset(
-                        cos(i * pi / 4) * 1,
-                        sin(i * pi / 4) * 1,
-                      ),
-                      blurRadius: 0,
-                    ),
-                ],
-              ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 7, // Reducido de 9 a 7
+              fontWeight: FontWeight.bold,
+              fontFamily: 'GameFont',
+              letterSpacing: 0.5,
             ),
           ),
         ),

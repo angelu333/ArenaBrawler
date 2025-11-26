@@ -16,6 +16,7 @@ class CharacterData {
       specialAbilityName: 'Ráfaga',
       specialAbilityDescription: 'Dispara rápidamente durante 5 segundos',
       specialAbilityCooldown: 12.0,
+      stepTime: 0.1, // Más fluido
     ),
     const CharacterModel(
       id: 'warrior',
@@ -61,6 +62,7 @@ class CharacterData {
       specialAbilityName: 'Velocidad',
       specialAbilityDescription: 'Velocidad 2x durante 6 segundos',
       specialAbilityCooldown: 12.0,
+      stepTime: 0.08, // Muy rápido
     ),
     const CharacterModel(
       id: 'archer',
@@ -91,6 +93,7 @@ class CharacterData {
       specialAbilityName: 'Curación',
       specialAbilityDescription: 'Recupera 50 puntos de vida',
       specialAbilityCooldown: 15.0,
+      stepTime: 0.1, // Ajuste para fluidez
     ),
   ];
 }

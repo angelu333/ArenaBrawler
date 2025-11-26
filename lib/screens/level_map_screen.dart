@@ -4,6 +4,7 @@ import 'package:juego_happy/game/flame_game_wrapper.dart';
 import 'package:juego_happy/game/level2_wrapper.dart';
 import 'package:juego_happy/models/level_data.dart';
 import 'package:juego_happy/services/game_data_service.dart';
+import 'package:juego_happy/services/audio_service.dart';
 
 class LevelMapScreen extends StatefulWidget {
   const LevelMapScreen({super.key});
@@ -448,6 +449,10 @@ class _LevelMapScreenState extends State<LevelMapScreen>
 
     if (!mounted) return;
 
+    // Detener música del menú antes de entrar al nivel
+    final audioService = AudioService();
+    await audioService.stopMusic();
+
     // Navegar según el nivel
     if (level.id == 2) {
       // Nivel 2: Laberinto con guardias y diamante
@@ -469,6 +474,9 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         ),
       );
     }
+
+    // Al volver del nivel, reanudar música del menú
+    await audioService.playMenuMusic();
 
     // Recargar progreso
     _loadProgress();

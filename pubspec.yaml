@@ -18,6 +18,8 @@ dependencies:
   cloud_firestore: ^4.17.3
   flame: ^1.17.0
   shared_preferences: ^2.2.2
+  video_player: ^2.8.2
+  audioplayers: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -42,6 +44,8 @@ flutter:
     - assets/images/characters/Mage/
     - assets/images/characters/Rogue/
     - assets/images/characters/Healer/
+    - assets/videos/
+    - assets/audio/music/
   
   fonts:
     - family: GameFont

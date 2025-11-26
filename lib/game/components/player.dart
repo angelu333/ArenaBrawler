@@ -98,15 +98,19 @@ class Player extends SpriteAnimationGroupComponent<PlayerState>
     // Ajustar tamaño de frame según la imagen. Si es 110x110 aprox por frame?
     // El usuario no especificó tamaño, pero generamos un spritesheet.
     // Vamos a asumir que la imagen se divide equitativamente.
-    final frameWidth = image.width / 4;
-    final frameHeight = image.height / 4;
+    // Usar configuración del personaje
+    final frames = character.framesPerAnimation;
+    final stepTime = character.stepTime;
+
+    final frameWidth = image.width / frames;
+    final frameHeight = image.height / 4; // Asumimos 4 direcciones siempre
     final textureSize = Vector2(frameWidth, frameHeight);
 
     final downAnimation = SpriteAnimation.fromFrameData(
       image,
       SpriteAnimationData.sequenced(
-        amount: 4,
-        stepTime: 0.15,
+        amount: frames,
+        stepTime: stepTime,
         textureSize: textureSize,
         texturePosition: Vector2(0, 0),
       ),
@@ -115,8 +119,8 @@ class Player extends SpriteAnimationGroupComponent<PlayerState>
     final leftAnimation = SpriteAnimation.fromFrameData(
       image,
       SpriteAnimationData.sequenced(
-        amount: 4,
-        stepTime: 0.15,
+        amount: frames,
+        stepTime: stepTime,
         textureSize: textureSize,
         texturePosition: Vector2(0, frameHeight),
       ),
@@ -125,8 +129,8 @@ class Player extends SpriteAnimationGroupComponent<PlayerState>
     final rightAnimation = SpriteAnimation.fromFrameData(
       image,
       SpriteAnimationData.sequenced(
-        amount: 4,
-        stepTime: 0.15,
+        amount: frames,
+        stepTime: stepTime,
         textureSize: textureSize,
         texturePosition: Vector2(0, frameHeight * 2),
       ),
@@ -135,8 +139,8 @@ class Player extends SpriteAnimationGroupComponent<PlayerState>
     final upAnimation = SpriteAnimation.fromFrameData(
       image,
       SpriteAnimationData.sequenced(
-        amount: 4,
-        stepTime: 0.15,
+        amount: frames,
+        stepTime: stepTime,
         textureSize: textureSize,
         texturePosition: Vector2(0, frameHeight * 3),
       ),

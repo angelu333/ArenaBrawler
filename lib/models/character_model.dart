@@ -21,6 +21,8 @@ class CharacterModel {
   final String specialAbilityName;
   final String specialAbilityDescription;
   final double specialAbilityCooldown; // En segundos
+  final int framesPerAnimation;
+  final double stepTime;
 
   const CharacterModel({
     required this.id,
@@ -36,6 +38,8 @@ class CharacterModel {
     required this.specialAbilityName,
     required this.specialAbilityDescription,
     this.specialAbilityCooldown = 10.0,
+    this.framesPerAnimation = 4,
+    this.stepTime = 0.15,
   });
 
   factory CharacterModel.fromJson(Map<String, dynamic> json) {
@@ -53,6 +57,8 @@ class CharacterModel {
       specialAbilityName: json['specialAbilityName'] as String? ?? '',
       specialAbilityDescription: json['specialAbilityDescription'] as String? ?? '',
       specialAbilityCooldown: (json['specialAbilityCooldown'] as num?)?.toDouble() ?? 10.0,
+      framesPerAnimation: json['framesPerAnimation'] as int? ?? 4,
+      stepTime: (json['stepTime'] as num?)?.toDouble() ?? 0.15,
     );
   }
 
@@ -71,6 +77,8 @@ class CharacterModel {
       'specialAbilityName': specialAbilityName,
       'specialAbilityDescription': specialAbilityDescription,
       'specialAbilityCooldown': specialAbilityCooldown,
+      'framesPerAnimation': framesPerAnimation,
+      'stepTime': stepTime,
     };
   }
 }
