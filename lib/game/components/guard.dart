@@ -1,9 +1,7 @@
-import 'dart:async';
 import 'dart:math';
-import 'dart:ui'; // Para lerpDouble
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart'; // Importar efectos
+import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:juego_happy/game/components/health_bar.dart';
@@ -14,7 +12,7 @@ import 'package:juego_happy/game/components/maze_wall.dart';
 import 'package:juego_happy/models/character_model.dart';
 
 /// Guardia que patrulla y persigue al jugador si lo ve
-class Guard extends SpriteComponent
+class Guard extends SpriteAnimationGroupComponent<PlayerState>
     with HasGameReference<FlameGame>, CollisionCallbacks {
   final CharacterModel character;
   final List<Vector2> patrolPoints;
@@ -32,10 +30,9 @@ class Guard extends SpriteComponent
   bool _isChasing = false;
   Vector2 _facingDirection = Vector2(0, 1);
 
-  // Animación de movimiento
-  double _wobbleTimer = 0.0;
-  final double _wobbleSpeed = 10.0; // Un poco más lento que el jugador
-  final double _wobbleAmount = 0.08;
+  // Variables para detección de movimiento
+  Vector2 _lastPosition = Vector2.zero();
+  bool _isMoving = false;
 
   Guard({
     required this.character,
@@ -50,17 +47,93 @@ class Guard extends SpriteComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    sprite = await game.loadSprite(character.spriteAsset);
+
+    // Cargar animaciones
+    if (character.spriteAsset.contains('spritesheet')) {
+      await _loadAnimations();
+    } else {
+      // Fallback para imagen estática
+      final sprite = await game.loadSprite(character.spriteAsset);
+      animations = {
+        PlayerState.idle: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runDown: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runLeft: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runRight: SpriteAnimation.spriteList([sprite], stepTime: 1),
+        PlayerState.runUp: SpriteAnimation.spriteList([sprite], stepTime: 1),
+      };
+      current = PlayerState.idle;
+    }
+
     size = Vector2.all(110.0);
     anchor = Anchor.center;
 
-    add(CircleHitbox(radius: 30));
+    add(CircleHitbox(radius: 20));
     add(HealthBar(
       healthNotifier: healthNotifier,
       maxHealth: character.baseHealth,
       position: Vector2(0, size.y - 15),
       size: Vector2(size.x, 5),
     ));
+
+    _lastPosition = position.clone();
+  }
+
+  Future<void> _loadAnimations() async {
+    final image = await game.images.load(character.spriteAsset);
+
+    final frameWidth = image.width / 4;
+    final frameHeight = image.height / 4;
+    final textureSize = Vector2(frameWidth, frameHeight);
+
+    final downAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, 0),
+      ),
+    );
+
+    final leftAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, frameHeight),
+      ),
+    );
+
+    final rightAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, frameHeight * 2),
+      ),
+    );
+
+    final upAnimation = SpriteAnimation.fromFrameData(
+      image,
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: 0.15,
+        textureSize: textureSize,
+        texturePosition: Vector2(0, frameHeight * 3),
+      ),
+    );
+
+    animations = {
+      PlayerState.idle: downAnimation,
+      PlayerState.runDown: downAnimation,
+      PlayerState.runLeft: leftAnimation,
+      PlayerState.runRight: rightAnimation,
+      PlayerState.runUp: upAnimation,
+    };
+
+    current = PlayerState.idle;
   }
 
   @override
@@ -72,36 +145,7 @@ class Guard extends SpriteComponent
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-
-    // Dibujar cono de visión si está patrullando
-    if (!_isChasing) {
-      _drawVisionCone(canvas);
-    }
-  }
-
-  void _drawVisionCone(Canvas canvas) {
-    final paint = Paint()
-  ..color = Colors.yellow.withAlpha((0.2 * 255).round())
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    path.moveTo(0, 0);
-
-    const angleRad = _visionAngle * (pi / 180);
-    final leftAngle = atan2(_facingDirection.y, _facingDirection.x) - angleRad / 2;
-    final rightAngle = atan2(_facingDirection.y, _facingDirection.x) + angleRad / 2;
-
-    path.lineTo(
-      cos(leftAngle) * _visionRange,
-      sin(leftAngle) * _visionRange,
-    );
-    path.lineTo(
-      cos(rightAngle) * _visionRange,
-      sin(rightAngle) * _visionRange,
-    );
-    path.close();
-
-    canvas.drawPath(path, paint);
+    // Vision cone hidden as requested
   }
 
   @override
@@ -112,19 +156,42 @@ class Guard extends SpriteComponent
     final player = _findPlayer();
     if (player == null || !player.isMounted) {
       _patrol(dt);
-      return;
-    }
-
-    final distanceToPlayer = (player.position - position).length;
-
-    // Verificar si ve al jugador o está en rango de persecución
-    if (_canSeePlayer(player) || (_isChasing && distanceToPlayer < _chaseRange)) {
-      _isChasing = true;
-      _chasePlayer(player, dt);
     } else {
-      _isChasing = false;
-      _patrol(dt);
+      final distanceToPlayer = (player.position - position).length;
+
+      // Verificar si ve al jugador o está en rango de persecución
+      if (_canSeePlayer(player) ||
+          (_isChasing && distanceToPlayer < _chaseRange)) {
+        _isChasing = true;
+        _chasePlayer(player, dt);
+      } else {
+        _isChasing = false;
+        _patrol(dt);
+      }
     }
+
+    // Actualizar animación basada en movimiento
+    final displacement = position - _lastPosition;
+    _isMoving = displacement.length2 > 0.001;
+
+    if (_isMoving) {
+      if (displacement.x.abs() > displacement.y.abs()) {
+        if (displacement.x > 0) {
+          current = PlayerState.runRight;
+        } else {
+          current = PlayerState.runLeft;
+        }
+      } else {
+        if (displacement.y > 0) {
+          current = PlayerState.runDown;
+        } else {
+          current = PlayerState.runUp;
+        }
+      }
+    } else {
+      current = PlayerState.idle;
+    }
+    _lastPosition = position.clone();
   }
 
   bool _canSeePlayer(Player player) {
@@ -137,7 +204,7 @@ class Guard extends SpriteComponent
     final angleToPlayer = atan2(toPlayer.y, toPlayer.x);
     final facingAngle = atan2(_facingDirection.y, _facingDirection.x);
     var angleDiff = (angleToPlayer - facingAngle).abs();
-    
+
     // Normalizar el ángulo para manejar el wrap-around
     if (angleDiff > pi) {
       angleDiff = 2 * pi - angleDiff;
@@ -150,10 +217,6 @@ class Guard extends SpriteComponent
 
   void _patrol(double dt) {
     if (patrolPoints.isEmpty) return;
-
-    // Animar movimiento
-    _wobbleTimer += dt * _wobbleSpeed;
-    angle = sin(_wobbleTimer) * _wobbleAmount;
 
     final target = patrolPoints[_currentPatrolIndex];
     final toTarget = target - position;
@@ -171,10 +234,6 @@ class Guard extends SpriteComponent
   }
 
   void _chasePlayer(Player player, double dt) {
-    // Animar movimiento rápido
-    _wobbleTimer += dt * _wobbleSpeed * 1.5;
-    angle = sin(_wobbleTimer) * _wobbleAmount;
-
     final toPlayer = player.position - position;
     final distance = toPlayer.length;
     final direction = toPlayer.normalized();
@@ -185,7 +244,7 @@ class Guard extends SpriteComponent
     if (distance > 180) {
       // Perseguir mientras dispara
       position.add(direction * maxSpeed * dt);
-      
+
       // Disparar mientras persigue
       if (currentTime - _lastShotTime > _shootCooldown) {
         shoot(direction);
@@ -197,7 +256,7 @@ class Guard extends SpriteComponent
         // Retroceder un poco
         position.add(direction * -maxSpeed * 0.5 * dt);
       }
-      
+
       // Disparar
       if (currentTime - _lastShotTime > _shootCooldown) {
         shoot(direction);
@@ -245,24 +304,31 @@ class Guard extends SpriteComponent
   }
 
   void _handleWallCollision(PositionComponent wall) {
-    final rect = toRect();
+    // Usar un hitbox más pequeño para la resolución de colisiones
+    // El sprite es 110x110, pero el cuerpo físico es mucho más pequeño (40x40)
+    final hitboxSize = Vector2.all(40);
+    final rect = Rect.fromCenter(
+      center: position.toOffset(),
+      width: hitboxSize.x,
+      height: hitboxSize.y,
+    );
     final otherRect = wall.toRect();
-    
+
     if (!rect.overlaps(otherRect)) return;
-    
+
     final intersection = rect.intersect(otherRect);
 
     if (intersection.width < intersection.height) {
       if (rect.center.dx < otherRect.center.dx) {
-        position.x = otherRect.left - width / 2 - 1;
+        position.x = otherRect.left - hitboxSize.x / 2 - 1;
       } else {
-        position.x = otherRect.right + width / 2 + 1;
+        position.x = otherRect.right + hitboxSize.x / 2 + 1;
       }
     } else {
       if (rect.center.dy < otherRect.center.dy) {
-        position.y = otherRect.top - height / 2 - 1;
+        position.y = otherRect.top - hitboxSize.y / 2 - 1;
       } else {
-        position.y = otherRect.bottom + height / 2 + 1;
+        position.y = otherRect.bottom + hitboxSize.y / 2 + 1;
       }
     }
   }
@@ -279,7 +345,7 @@ class Guard extends SpriteComponent
   void takeDamage(double damage) {
     healthNotifier.value -= damage;
     _isChasing = true; // Alertar al guardia
-    
+
     // Flash rojo
     add(ColorEffect(
       Colors.red,

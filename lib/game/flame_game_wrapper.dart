@@ -342,7 +342,9 @@ class GameOverOverlay extends StatelessWidget {
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
             ),
             child: IntrinsicHeight(
               child: Column(
@@ -530,99 +532,101 @@ class VictoryOverlay extends StatelessWidget {
     return Container(
       color: Colors.black.withAlpha((0.8 * 255).round()),
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Texto VICTORIA estilo arcade
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.green.withAlpha((0.3 * 255).round()),
-                border: Border.all(color: Colors.green, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withAlpha((0.5 * 255).round()),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  ),
-                ],
-              ),
-              child: const Text(
-                '¡VICTORIA!',
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 72,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.green,
-                  letterSpacing: 8,
-                  shadows: [
-                    Shadow(
-                      color: Colors.white,
-                      offset: Offset(2, 2),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Texto VICTORIA estilo arcade
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.green.withAlpha((0.3 * 255).round()),
+                  border: Border.all(color: Colors.green, width: 4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withAlpha((0.5 * 255).round()),
+                      blurRadius: 20,
+                      spreadRadius: 5,
                     ),
-                    Shadow(
-                      color: Colors.black,
-                      offset: Offset(4, 4),
-                      blurRadius: 8,
+                  ],
+                ),
+                child: const Text(
+                  '¡VICTORIA!',
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 72,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.green,
+                    letterSpacing: 8,
+                    shadows: [
+                      Shadow(
+                        color: Colors.white,
+                        offset: Offset(2, 2),
+                      ),
+                      Shadow(
+                        color: Colors.black,
+                        offset: Offset(4, 4),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Estadísticas
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha((0.5 * 255).round()),
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Nivel $levelId Completado',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Personaje: ${game.playerCharacter.name}',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '+ $coins MONEDAS',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 24,
+                        color: Colors.amber,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 40),
+              const SizedBox(height: 40),
 
-            // Estadísticas
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.black.withAlpha((0.5 * 255).round()),
-                border: Border.all(color: Colors.white, width: 2),
+              // Botón continuar
+              _ArcadeButton(
+                text: 'CONTINUAR',
+                color: Colors.green,
+                onPressed: onContinue,
               ),
-              child: Column(
-                children: [
-                  Text(
-                    'Nivel $levelId Completado',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Personaje: ${game.playerCharacter.name}',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '+ $coins MONEDAS',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 24,
-                      color: Colors.amber,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // Botón continuar
-            _ArcadeButton(
-              text: 'CONTINUAR',
-              color: Colors.green,
-              onPressed: onContinue,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

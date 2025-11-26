@@ -11,7 +11,8 @@ class StoreScreen extends StatefulWidget {
   State<StoreScreen> createState() => _StoreScreenState();
 }
 
-class _StoreScreenState extends State<StoreScreen> with SingleTickerProviderStateMixin {
+class _StoreScreenState extends State<StoreScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final GameDataService _gameData = GameDataService();
   List<String> _ownedCharacters = [];
@@ -203,26 +204,26 @@ class _StoreCharacterCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
-              // Imagen del personaje
+              // Imagen del personaje (Recortada)
               Container(
-                width: 140,
-                height: 140,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   color: Colors.white.withAlpha((0.1 * 255).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
-                    'assets/images/${character.spriteAsset}',
+                    'assets/images/${character.profileAsset}',
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return const Icon(
                         Icons.person,
-                        size: 80,
+                        size: 60,
                         color: Colors.white,
                       );
                     },
@@ -230,48 +231,51 @@ class _StoreCharacterCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
 
               // Info del personaje
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       character.name,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       character.description,
                       style: TextStyle(
                         color: Colors.white.withAlpha((0.8 * 255).round()),
-                        fontSize: 12,
+                        fontSize: 11,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
                     // Stats
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         _StatChip(
                           icon: Icons.favorite,
                           value: character.baseHealth.toInt().toString(),
                           color: Colors.red,
                         ),
-                        const SizedBox(width: 8),
                         _StatChip(
                           icon: Icons.flash_on,
                           value: character.baseSpeed.toInt().toString(),
                           color: Colors.blue,
                         ),
-                        const SizedBox(width: 8),
                         _StatChip(
                           icon: Icons.whatshot,
                           value: character.attackDamage.toInt().toString(),
@@ -283,50 +287,41 @@ class _StoreCharacterCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
 
               // Botón de compra
               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (isOwned)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                        horizontal: 12,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.green,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.check, color: Colors.white, size: 20),
-                          SizedBox(width: 4),
-                          Text(
-                            'POSEÍDO',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                      child: const Icon(Icons.check,
+                          color: Colors.white, size: 20),
                     )
                   else if (character.price == 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                        horizontal: 12,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
-                        'GRATIS',
+                        'FREE',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
                     )
@@ -334,6 +329,8 @@ class _StoreCharacterCard extends StatelessWidget {
                     ElevatedButton(
                       onPressed: canAfford ? onPurchase : null,
                       style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         backgroundColor:
                             canAfford ? Colors.amber.shade700 : Colors.grey,
                         foregroundColor: Colors.white,
@@ -342,13 +339,15 @@ class _StoreCharacterCard extends StatelessWidget {
                         ),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.monetization_on, size: 20),
+                          const Icon(Icons.monetization_on, size: 16),
                           const SizedBox(width: 4),
                           Text(
                             '${character.price}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                         ],
@@ -380,7 +379,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-  color: Colors.black.withAlpha((0.3 * 255).round()),
+        color: Colors.black.withAlpha((0.3 * 255).round()),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

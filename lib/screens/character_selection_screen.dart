@@ -6,7 +6,7 @@ import 'package:juego_happy/services/game_data_service.dart';
 
 class CharacterSelectionScreen extends StatefulWidget {
   final bool selectOnly;
-  
+
   const CharacterSelectionScreen({super.key, this.selectOnly = false});
 
   @override
@@ -172,7 +172,9 @@ class _CharacterCard extends StatelessWidget {
           color: Colors.white.withAlpha((0.1 * 255).round()),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? Colors.yellow : Colors.white.withAlpha((0.3 * 255).round()),
+            color: isSelected
+                ? Colors.yellow
+                : Colors.white.withAlpha((0.3 * 255).round()),
             width: isSelected ? 4 : 2,
           ),
           boxShadow: isSelected
@@ -194,7 +196,7 @@ class _CharacterCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Image.asset(
-                  'assets/images/${character.spriteAsset}',
+                  'assets/images/${character.profileAsset}',
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
                     return const Icon(
@@ -253,7 +255,8 @@ class _CharacterCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   // Habilidad especial
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.purple.withAlpha((0.3 * 255).round()),
                       borderRadius: BorderRadius.circular(4),
