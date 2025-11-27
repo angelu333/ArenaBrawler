@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _loadGameData();
-    
+
     // Iniciar música de menú
     _audioService.playMenuMusic();
 
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setState(() {
       _coins = newCoins;
     });
-    
+
     // Mostrar mensaje
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -128,9 +128,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        const Color(0xFF1A0F2E), // Deep dark purple
-                        const Color(0xFF0D1B2A), // Dark navy blue
+                      colors: const [
+                        Color(0xFF1A0F2E), // Deep dark purple
+                        Color(0xFF0D1B2A), // Dark navy blue
                       ],
                     ),
                   ),
@@ -263,7 +263,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           icon: 'assets/images/coins/coin_icon.png',
                           amount: _coins,
                           accentColor: const Color(0xFFFFA726),
-                          showAddIcon: true, // Mostrar icono "+" para indicar que es clickeable
+                          showAddIcon:
+                              true, // Mostrar icono "+" para indicar que es clickeable
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -334,53 +335,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             left: 8,
             top: screenHeight * 0.28,
             bottom: screenHeight * 0.18,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _SideMenuButton(
-                  iconImage: 'assets/images/icons/heroes_icon.png',
-                  label: 'PERSONAJES',
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const CharacterSelectionScreen(selectOnly: true),
-                      ),
-                    );
-                    _loadGameData();
-                  },
-                ),
-                const SizedBox(height: 8),
-                _SideMenuButton(
-                  iconImage: 'assets/images/icons/shop_icon.png',
-                  label: 'TIENDA',
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StoreScreen(),
-                      ),
-                    );
-                    _loadGameData();
-                  },
-                ),
-                const SizedBox(height: 8),
-                _SideMenuButton(
-                  iconImage: 'assets/images/icons/news_icon.png',
-                  label: 'MAPA',
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LevelMapScreen(),
-                      ),
-                    );
-                    _loadGameData();
-                  },
-                ),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _SideMenuButton(
+                    iconImage: 'assets/images/icons/heroes_icon.png',
+                    label: 'PERSONAJES',
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const CharacterSelectionScreen(selectOnly: true),
+                        ),
+                      );
+                      _loadGameData();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _SideMenuButton(
+                    iconImage: 'assets/images/icons/shop_icon.png',
+                    label: 'TIENDA',
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const StoreScreen(),
+                        ),
+                      );
+                      _loadGameData();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _SideMenuButton(
+                    iconImage: 'assets/images/icons/news_icon.png',
+                    label: 'MAPA',
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LevelMapScreen(),
+                        ),
+                      );
+                      _loadGameData();
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -422,7 +425,7 @@ class ParticlesPainter extends CustomPainter {
               (animationValue * size.height * 0.5)) %
           size.height;
       final radius = random.nextDouble() * 4 + 1;
-      
+
       // Varied particle colors for more magical effect
       final colorChoice = i % 3;
       Color particleColor;
@@ -433,13 +436,13 @@ class ParticlesPainter extends CustomPainter {
       } else {
         particleColor = Colors.purple.withValues(alpha: 0.25);
       }
-      
+
       final paint = Paint()
         ..color = particleColor
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(Offset(x, y), radius, paint);
-      
+
       // Add glow effect to some particles
       if (i % 5 == 0) {
         final glowPaint = Paint()

@@ -367,9 +367,9 @@ class GameOverOverlay extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: FittedBox(
+                    child: const FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: const Text(
+                      child: Text(
                         'GAME OVER',
                         style: TextStyle(
                           fontFamily: 'monospace',
@@ -552,7 +552,8 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
   Widget build(BuildContext context) {
     // Si debemos mostrar video, mostrar la pantalla de video
     final charId = widget.game.playerCharacter.id;
-    if (_showVideo && (charId == 'healer' || charId == 'default' || charId == 'rogue')) {
+    if (_showVideo &&
+        (charId == 'healer' || charId == 'default' || charId == 'rogue')) {
       return _buildVideoVictory(context);
     }
 
@@ -586,9 +587,10 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
                   // Después de la animación, navegar a la pantalla de video
                   Future.delayed(const Duration(milliseconds: 500), () {
                     if (!mounted) return;
-                    
+
                     final navigator = Navigator.of(context);
-                    navigator.push(
+                    navigator
+                        .push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) {
                           // Importar dinámicamente
@@ -610,14 +612,16 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
                           );
                         },
                         transitionDuration: const Duration(milliseconds: 800),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
                           return FadeTransition(
                             opacity: animation,
                             child: child,
                           );
                         },
                       ),
-                    ).then((_) {
+                    )
+                        .then((_) {
                       widget.onContinue();
                     });
                   });
@@ -625,12 +629,12 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withAlpha((0.2 * 255).round()),
                     border: Border.all(color: Colors.green, width: 4),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.green.withOpacity(0.6),
+                        color: Colors.green.withAlpha((0.6 * 255).round()),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -702,5 +706,50 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
     int coins = 50;
     if (widget.levelId == 2) coins = 100;
     if (widget.levelId == 3) coins = 500;
+
+    return Container(
+      color: Colors.black.withAlpha((0.8 * 255).round()),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '¡VICTORIA!',
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    letterSpacing: 8,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Has ganado $coins monedas',
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 24,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              _ArcadeButton(
+                text: 'CONTINUAR',
+                color: Colors.blue,
+                onPressed: widget.onContinue,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

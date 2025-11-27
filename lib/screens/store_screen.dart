@@ -143,9 +143,9 @@ class _StoreScreenState extends State<StoreScreen>
             ),
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 2 columnas para landscape
-                childAspectRatio: 2.5, // Más ancho que alto
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 400, // Responsive width
+                childAspectRatio: 1.8, // Taller cards to prevent overflow
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
@@ -290,70 +290,76 @@ class _StoreCharacterCard extends StatelessWidget {
               const SizedBox(width: 8),
 
               // Botón de compra
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (isOwned)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(Icons.check,
-                          color: Colors.white, size: 20),
-                    )
-                  else if (character.price == 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'FREE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    )
-                  else
-                    ElevatedButton(
-                      onPressed: canAfford ? onPurchase : null,
-                      style: ElevatedButton.styleFrom(
+              Container(
+                constraints: const BoxConstraints(maxWidth: 100),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isOwned)
+                      Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        backgroundColor:
-                            canAfford ? Colors.amber.shade700 : Colors.grey,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.monetization_on, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${character.price}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
+                        child: const Icon(Icons.check,
+                            color: Colors.white, size: 20),
+                      )
+                    else if (character.price == 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'FREE',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
-                        ],
+                        ),
+                      )
+                    else
+                      ElevatedButton(
+                        onPressed: canAfford ? onPurchase : null,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          backgroundColor:
+                              canAfford ? Colors.amber.shade700 : Colors.grey,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.monetization_on, size: 16),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                '${character.price}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

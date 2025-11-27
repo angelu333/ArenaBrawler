@@ -54,11 +54,14 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
     String videoAsset = 'assets/videos/healer_victory.mp4'; // Default
 
     // Seleccionar video según el personaje
-    if (widget.characterName.contains('Aventurero') || widget.characterName.contains('Adventurer')) {
+    if (widget.characterName.contains('Aventurero') ||
+        widget.characterName.contains('Adventurer')) {
       videoAsset = 'assets/videos/adventurer_victory.mp4';
-    } else if (widget.characterName.contains('Sombra') || widget.characterName.contains('Rogue')) {
+    } else if (widget.characterName.contains('Sombra') ||
+        widget.characterName.contains('Rogue')) {
       videoAsset = 'assets/videos/rogue_victory.mp4';
-    } else if (widget.characterName.contains('Clérigo') || widget.characterName.contains('Healer')) {
+    } else if (widget.characterName.contains('Clérigo') ||
+        widget.characterName.contains('Healer')) {
       videoAsset = 'assets/videos/healer_victory.mp4';
     }
 
@@ -72,20 +75,23 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
 
       // Transición suave: Fade out de la intro y fade in del video
       // Hacemos la transición un poco más lenta para que sea "no agresiva"
-      await _fadeController.animateTo(0.0, duration: const Duration(milliseconds: 800));
-      
+      await _fadeController.animateTo(0.0,
+          duration: const Duration(milliseconds: 800));
+
       setState(() {
         _showIntro = false;
       });
 
-      await _fadeController.animateTo(1.0, duration: const Duration(milliseconds: 1000));
+      await _fadeController.animateTo(1.0,
+          duration: const Duration(milliseconds: 1000));
 
       // Reproducir el video
       _videoController.play();
 
       // Listener para cuando termine el video
       _videoController.addListener(() {
-        if (_videoController.value.position >= _videoController.value.duration) {
+        if (_videoController.value.position >=
+            _videoController.value.duration) {
           widget.onComplete();
         }
       });
@@ -142,7 +148,8 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
                 child: TextButton(
                   onPressed: widget.onComplete,
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.black.withOpacity(0.5),
+                    backgroundColor:
+                        Colors.black.withAlpha((0.5 * 255).round()),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
@@ -171,131 +178,145 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
           end: Alignment.bottomCenter,
           colors: [
             Colors.black,
-            Colors.green.withOpacity(0.3),
+            Colors.green.withAlpha((0.3 * 255).round()),
             Colors.black,
           ],
         ),
       ),
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Texto VICTORIA con efecto brillante
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.2),
-                border: Border.all(color: Colors.green, width: 4),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withOpacity(0.6),
-                    blurRadius: 30,
-                    spreadRadius: 10,
-                  ),
-                ],
-              ),
-              child: const Text(
-                '¡VICTORIA!',
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 64,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.green,
-                  letterSpacing: 12,
-                  shadows: [
-                    Shadow(
-                      color: Colors.white,
-                      offset: Offset(0, 0),
-                      blurRadius: 20,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Texto VICTORIA con efecto brillante
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.green.withAlpha((0.2 * 255).round()),
+                  border: Border.all(color: Colors.green, width: 4),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withAlpha((0.6 * 255).round()),
+                      blurRadius: 30,
+                      spreadRadius: 10,
                     ),
-                    Shadow(
+                  ],
+                ),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '¡VICTORIA!',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 64,
+                      fontWeight: FontWeight.w900,
                       color: Colors.green,
-                      offset: Offset(0, 0),
-                      blurRadius: 40,
+                      letterSpacing: 12,
+                      shadows: [
+                        Shadow(
+                          color: Colors.white,
+                          offset: Offset(0, 0),
+                          blurRadius: 20,
+                        ),
+                        Shadow(
+                          color: Colors.green,
+                          offset: Offset(0, 0),
+                          blurRadius: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Información del personaje
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha((0.6 * 255).round()),
+                  border: Border.all(
+                      color: Colors.white.withAlpha((0.3 * 255).round()),
+                      width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.characterName,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 28,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Nivel ${widget.levelId} Completado',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 20,
+                          color: Colors.green.shade300,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.monetization_on,
+                          color: Colors.amber,
+                          size: 28,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+${widget.coins}',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 24,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
-            // Información del personaje
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    widget.characterName,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 28,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
+              // Indicador de carga
+              if (!_isVideoReady)
+                Column(
+                  children: [
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Nivel ${widget.levelId} Completado',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 20,
-                      color: Colors.green.shade300,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.monetization_on,
-                        color: Colors.amber,
-                        size: 28,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Preparando celebración...',
+                      style: TextStyle(
+                        color: Colors.white.withAlpha((0.7 * 255).round()),
+                        fontSize: 16,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '+${widget.coins}',
-                        style: const TextStyle(
-                          fontFamily: 'monospace',
-                          fontSize: 24,
-                          color: Colors.amber,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // Indicador de carga
-            if (!_isVideoReady)
-              Column(
-                children: [
-                  const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Preparando celebración...',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 16,
                     ),
-                  ),
-                ],
-              ),
-          ],
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );

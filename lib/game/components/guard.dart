@@ -143,12 +143,6 @@ class Guard extends SpriteAnimationGroupComponent<PlayerState>
   }
 
   @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    // Vision cone hidden as requested
-  }
-
-  @override
   void update(double dt) {
     super.update(dt);
 
