@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:juego_happy/data/character_data.dart';
 import 'package:juego_happy/models/character_model.dart';
@@ -47,14 +48,12 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
 
   void _startGame() {
     if (widget.selectOnly) {
-      // Solo seleccionar y volver
       Navigator.pop(context);
     } else {
-      // Ir al mapa de niveles
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const LevelMapScreen(),
+          builder: (context) => LevelMapScreen(),
         ),
       );
     }
@@ -64,7 +63,12 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Color(0xFF0F172A),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF6366F1),
+          ),
+        ),
       );
     }
 
@@ -73,93 +77,167 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
         .toList();
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Selecciona tu Personaje'),
-        backgroundColor: Colors.purple.shade900,
-        foregroundColor: Colors.white,
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.purple.shade900,
-              Colors.blue.shade900,
+        title: Text(
+          'ELIGE TU HÉROE',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2.0,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Colors.black.withOpacity(0.5),
+                offset: const Offset(2, 2),
+                blurRadius: 4,
+              ),
             ],
           ),
         ),
-        child: Column(
-          children: [
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200, // Responsive width
-                  childAspectRatio: 0.75, // Taller cards to prevent overflow
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: ownedCharactersList.length,
-                itemBuilder: (context, index) {
-                  final character = ownedCharactersList[index];
-                  final isSelected = character.id == _selectedCharacterId;
-
-                  return _CharacterCard(
-                    character: character,
-                    isSelected: isSelected,
-                    onTap: () => _selectCharacter(character.id),
-                  );
-                },
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Stack(
+        children: [
+          // Background
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF0F172A), // Deep Slate Blue
+            ),
+          ),
+          // Ambient Glows
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Container(
+              width: 400,
+              height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF6366F1).withOpacity(0.2), // Indigo
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6366F1).withOpacity(0.4),
+                    blurRadius: 100,
+                    spreadRadius: 20,
+                  ),
+                ],
               ),
             ),
-
-            // Botón para iniciar juego o confirmar selección
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: _startGame,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 8,
+          ),
+          Positioned(
+            bottom: -100,
+            right: -100,
+            child: Container(
+              width: 400,
+              height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFEC4899).withOpacity(0.2), // Pink
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFEC4899).withOpacity(0.4),
+                    blurRadius: 100,
+                    spreadRadius: 20,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.play_arrow, size: 32),
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.selectOnly ? 'CONFIRMAR' : 'INICIAR BATALLA',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                ],
+              ),
+            ),
+          ),
+
+          // Content
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 280,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 24,
+                      mainAxisSpacing: 24,
+                    ),
+                    itemCount: ownedCharactersList.length,
+                    itemBuilder: (context, index) {
+                      final character = ownedCharactersList[index];
+                      final isSelected = character.id == _selectedCharacterId;
+
+                      return _HeroCard(
+                        character: character,
+                        isSelected: isSelected,
+                        onTap: () => _selectCharacter(character.id),
+                      );
+                    },
+                  ),
+                ),
+
+                // Action Button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
+                  child: Container(
+                    width: double.infinity,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(32),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6366F1), Color(0xFFEC4899)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF6366F1).withOpacity(0.4),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _startGame,
+                        borderRadius: BorderRadius.circular(32),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.play_arrow_rounded,
+                                color: Colors.white, size: 32),
+                            const SizedBox(width: 12),
+                            Text(
+                              widget.selectOnly ? 'CONFIRMAR SELECCIÓN' : 'INICIAR BATALLA',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _CharacterCard extends StatelessWidget {
+class _HeroCard extends StatelessWidget {
   final CharacterModel character;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _CharacterCard({
+  const _HeroCard({
     required this.character,
     required this.isSelected,
     required this.onTap,
@@ -169,171 +247,190 @@ class _CharacterCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: isSelected ? (Matrix4.identity()..scale(1.05)) : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: Colors.white.withAlpha((0.1 * 255).round()),
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected
-                ? Colors.yellow
-                : Colors.white.withAlpha((0.3 * 255).round()),
-            width: isSelected ? 4 : 2,
+            color: isSelected ? const Color(0xFFEC4899) : Colors.white.withOpacity(0.1),
+            width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.yellow.withAlpha((0.5 * 255).round()),
+                    color: const Color(0xFFEC4899).withOpacity(0.4),
                     blurRadius: 20,
                     spreadRadius: 2,
-                  ),
+                  )
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
         ),
-        child: LayoutBuilder(builder: (context, constraints) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Imagen del personaje
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    'assets/images/${character.profileAsset}',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.white,
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // Nombre
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Text(
-                  character.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14, // Slightly smaller font
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              // Stats
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _StatIcon(
-                      icon: Icons.favorite,
-                      value: character.baseHealth.toInt().toString(),
-                      color: Colors.red,
-                    ),
-                    _StatIcon(
-                      icon: Icons.flash_on,
-                      value: character.baseSpeed.toInt().toString(),
-                      color: Colors.blue,
-                    ),
-                    _StatIcon(
-                      icon: Icons.whatshot,
-                      value: character.attackDamage.toInt().toString(),
-                      color: Colors.orange,
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              // Habilidad especial
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withAlpha((0.3 * 255).round()),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    character.specialAbilityName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-
-              if (isSelected)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'SELECCIONADO',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Character Image
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.1),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(
+                          'assets/images/${character.profileAsset}',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Colors.white54,
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          );
-        }),
+
+                  const SizedBox(height: 12),
+
+                  // Name
+                  Text(
+                    character.name.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Special Ability Tag
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color(0xFF6366F1).withOpacity(0.5),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Text(
+                        character.specialAbilityName.toUpperCase(),
+                        style: const TextStyle(
+                          color: Color(0xFFE0E7FF),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Stats
+                  _StatBar(
+                    label: 'HP',
+                    value: character.baseHealth / 200, // Normalize assuming max ~200
+                    color: const Color(0xFFEF4444), // Red
+                    icon: Icons.favorite_rounded,
+                  ),
+                  const SizedBox(height: 6),
+                  _StatBar(
+                    label: 'SPD',
+                    value: character.baseSpeed / 200, // Normalize
+                    color: const Color(0xFF3B82F6), // Blue
+                    icon: Icons.bolt_rounded,
+                  ),
+                  const SizedBox(height: 6),
+                  _StatBar(
+                    label: 'ATK',
+                    value: character.attackDamage / 100, // Normalize
+                    color: const Color(0xFFF59E0B), // Amber
+                    icon: Icons.whatshot_rounded,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-class _StatIcon extends StatelessWidget {
-  final IconData icon;
-  final String value;
+class _StatBar extends StatelessWidget {
+  final String label;
+  final double value;
   final Color color;
+  final IconData icon;
 
-  const _StatIcon({
-    required this.icon,
+  const _StatBar({
+    required this.label,
     required this.value,
     required this.color,
+    required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
-        Icon(icon, color: color, size: 14),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
+        Icon(icon, size: 12, color: color.withOpacity(0.8)),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Container(
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: value.clamp(0.0, 1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.4),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ],

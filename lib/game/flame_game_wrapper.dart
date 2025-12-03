@@ -1,10 +1,11 @@
-import 'package:flame/game.dart';
+﻿import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:juego_happy/game/arena_brawler_game.dart';
 import 'package:juego_happy/models/character_model.dart';
 import 'package:juego_happy/models/level_data.dart';
 import 'package:juego_happy/services/game_data_service.dart';
 import 'package:juego_happy/screens/victory_video_screen.dart';
+import 'package:juego_happy/widgets/score_submission_dialog.dart';
 
 class FlameGameWrapper extends StatefulWidget {
   final CharacterModel selectedCharacter;
@@ -548,6 +549,25 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
     }
   }
 
+  void _showScoreSubmission() {
+    // Calculate score based on level
+    int score = 1000;
+    if (widget.levelId == 2) score = 2000;
+    if (widget.levelId == 3) score = 5000;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ScoreSubmissionDialog(
+        score: score,
+        onClose: () {
+          Navigator.of(context).pop(); // Close dialog
+          widget.onContinue(); // Continue flow
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Si debemos mostrar video, mostrar la pantalla de video
@@ -622,7 +642,7 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
                       ),
                     )
                         .then((_) {
-                      widget.onContinue();
+                      _showScoreSubmission();
                     });
                   });
                 },
@@ -744,7 +764,7 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
               _ArcadeButton(
                 text: 'CONTINUAR',
                 color: Colors.blue,
-                onPressed: widget.onContinue,
+                onPressed: _showScoreSubmission,
               ),
             ],
           ),

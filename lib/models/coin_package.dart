@@ -30,11 +30,7 @@ class CoinPackage {
       price: 50,
       icon: Icons.shopping_bag,
       color: Colors.brown,
-<<<<<<< HEAD
       imagePath: 'coins/coin_bag.png',
-=======
-      imagePath: 'coins/coin_icon.png',
->>>>>>> master
     ),
     const CoinPackage(
       id: 'medium_pouch',
@@ -44,11 +40,7 @@ class CoinPackage {
       price: 100,
       icon: Icons.work,
       color: Colors.grey,
-<<<<<<< HEAD
       imagePath: 'coins/coin_pouch.png',
-=======
-      imagePath: 'coins/coin_icon.png',
->>>>>>> master
     ),
     const CoinPackage(
       id: 'small_chest',
@@ -58,11 +50,7 @@ class CoinPackage {
       price: 200,
       icon: Icons.inventory_2,
       color: Colors.blue,
-<<<<<<< HEAD
       imagePath: 'coins/coin_chest.png',
-=======
-      imagePath: 'coins/coin_icon.png',
->>>>>>> master
     ),
     const CoinPackage(
       id: 'large_chest',
@@ -72,11 +60,7 @@ class CoinPackage {
       price: 350,
       icon: Icons.inventory,
       color: Colors.purple,
-<<<<<<< HEAD
       imagePath: 'coins/coin_large_chest.png',
-=======
-      imagePath: 'coins/coin_icon.png',
->>>>>>> master
     ),
     const CoinPackage(
       id: 'treasure_chest',
@@ -86,11 +70,7 @@ class CoinPackage {
       price: 800,
       icon: Icons.diamond,
       color: Colors.amber,
-<<<<<<< HEAD
       imagePath: 'coins/coin_treasure.png',
-=======
-      imagePath: 'coins/coin_icon.png',
->>>>>>> master
     ),
     const CoinPackage(
       id: 'mega_vault',
@@ -100,11 +80,7 @@ class CoinPackage {
       price: 2000,
       icon: Icons.account_balance,
       color: Colors.red,
-<<<<<<< HEAD
       imagePath: 'coins/coin_vault.png',
-=======
-      imagePath: 'coins/coin_icon.png',
->>>>>>> master
     ),
   ];
 }

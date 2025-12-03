@@ -1,17 +1,11 @@
-<<<<<<< HEAD
-=======
 import 'dart:math';
 import 'dart:ui';
->>>>>>> master
 import 'package:flutter/material.dart';
 import 'package:juego_happy/data/character_data.dart';
 import 'package:juego_happy/models/character_model.dart';
 import 'package:juego_happy/screens/coin_store_screen.dart';
 import 'package:juego_happy/services/game_data_service.dart';
-<<<<<<< HEAD
-=======
 import 'package:juego_happy/services/audio_service.dart';
->>>>>>> master
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -24,10 +18,7 @@ class _StoreScreenState extends State<StoreScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final GameDataService _gameData = GameDataService();
-<<<<<<< HEAD
-=======
   final AudioService _audioService = AudioService();
->>>>>>> master
   List<String> _ownedCharacters = [];
   int _coins = 0;
   bool _isLoading = true;
@@ -57,21 +48,13 @@ class _StoreScreenState extends State<StoreScreen>
 
   Future<void> _purchaseCharacter(CharacterModel character) async {
     if (_ownedCharacters.contains(character.id)) {
-<<<<<<< HEAD
-      _showMessage('Ya posees este personaje');
-=======
       _showMessage('¡Ya tienes este héroe!', isError: false);
->>>>>>> master
       return;
     }
 
     if (_coins < character.price) {
-<<<<<<< HEAD
-      _showMessage('No tienes suficientes monedas');
-=======
       _showMessage('Monedas insuficientes', isError: true);
       _audioService.playClickSound(); // Sonido de error si tuviéramos
->>>>>>> master
       return;
     }
 
@@ -81,21 +64,12 @@ class _StoreScreenState extends State<StoreScreen>
     );
 
     if (success) {
-<<<<<<< HEAD
-      _showMessage('¡${character.name} comprado!');
-=======
       _audioService.playClickSound(); // Sonido de compra exitosa
       _showMessage('¡${character.name} reclutado!', isError: false);
->>>>>>> master
       _loadData();
     }
   }
 
-<<<<<<< HEAD
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-=======
   void _showMessage(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -110,321 +84,11 @@ class _StoreScreenState extends State<StoreScreen>
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
->>>>>>> master
     );
   }
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tienda'),
-        backgroundColor: Colors.orange.shade900,
-        foregroundColor: Colors.white,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(
-              icon: Icon(Icons.person),
-              text: 'Personajes',
-            ),
-            Tab(
-              icon: Icon(Icons.monetization_on),
-              text: 'Monedas',
-            ),
-          ],
-        ),
-        actions: [
-          // Mostrar monedas en el AppBar
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade700,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.monetization_on, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$_coins',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Pestaña de Personajes
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.orange.shade900,
-                  Colors.red.shade900,
-                ],
-              ),
-            ),
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 400, // Responsive width
-                childAspectRatio: 1.8, // Taller cards to prevent overflow
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: CharacterData.availableCharacters.length,
-              itemBuilder: (context, index) {
-                final character = CharacterData.availableCharacters[index];
-                final isOwned = _ownedCharacters.contains(character.id);
-                final canAfford = _coins >= character.price;
-
-                return _StoreCharacterCard(
-                  character: character,
-                  isOwned: isOwned,
-                  canAfford: canAfford,
-                  onPurchase: () => _purchaseCharacter(character),
-                );
-              },
-            ),
-          ),
-
-          // Pestaña de Monedas
-          const CoinStoreScreen(),
-        ],
-      ),
-    );
-  }
-}
-
-class _StoreCharacterCard extends StatelessWidget {
-  final CharacterModel character;
-  final bool isOwned;
-  final bool canAfford;
-  final VoidCallback onPurchase;
-
-  const _StoreCharacterCard({
-    required this.character,
-    required this.isOwned,
-    required this.canAfford,
-    required this.onPurchase,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.purple.shade800,
-              Colors.blue.shade800,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              // Imagen del personaje (Recortada)
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha((0.1 * 255).round()),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    'assets/images/${character.profileAsset}',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.white,
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // Info del personaje
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      character.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      character.description,
-                      style: TextStyle(
-                        color: Colors.white.withAlpha((0.8 * 255).round()),
-                        fontSize: 11,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Stats
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        _StatChip(
-                          icon: Icons.favorite,
-                          value: character.baseHealth.toInt().toString(),
-                          color: Colors.red,
-                        ),
-                        _StatChip(
-                          icon: Icons.flash_on,
-                          value: character.baseSpeed.toInt().toString(),
-                          color: Colors.blue,
-                        ),
-                        _StatChip(
-                          icon: Icons.whatshot,
-                          value: character.attackDamage.toInt().toString(),
-                          color: Colors.orange,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // Botón de compra
-              Container(
-                constraints: const BoxConstraints(maxWidth: 100),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (isOwned)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(Icons.check,
-                            color: Colors.white, size: 20),
-                      )
-                    else if (character.price == 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'FREE',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      )
-                    else
-                      ElevatedButton(
-                        onPressed: canAfford ? onPurchase : null,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          backgroundColor:
-                              canAfford ? Colors.amber.shade700 : Colors.grey,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.monetization_on, size: 16),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                '${character.price}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final Color color;
-
-  const _StatChip({
-    required this.icon,
-    required this.value,
-    required this.color,
-  });
-=======
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -544,27 +208,10 @@ class _CoinDisplay extends StatelessWidget {
   final int coins;
 
   const _CoinDisplay({required this.coins});
->>>>>>> master
 
   @override
   Widget build(BuildContext context) {
     return Container(
-<<<<<<< HEAD
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.black.withAlpha((0.3 * 255).round()),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-=======
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity( 0.6),
@@ -594,7 +241,6 @@ class _CoinDisplay extends StatelessWidget {
               fontFamily: 'GameFont',
               color: Colors.white,
               fontSize: 18,
->>>>>>> master
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -603,8 +249,6 @@ class _CoinDisplay extends StatelessWidget {
     );
   }
 }
-<<<<<<< HEAD
-=======
 
 class _HeroCard extends StatefulWidget {
   final CharacterModel character;
@@ -800,14 +444,14 @@ class _HeroCardState extends State<_HeroCard> with SingleTickerProviderStateMixi
                                   gradient: LinearGradient(
                                     colors: widget.canAfford
                                         ? [Colors.amber.shade700, Colors.amber.shade900]
-                                        : [Colors.grey.shade700, Colors.grey.shade800],
+                                        : [Colors.grey.shade700, Colors.grey.shade900],
                                   ),
                                   borderRadius: BorderRadius.circular(8),
                                   boxShadow: [
                                     if (widget.canAfford)
                                       BoxShadow(
-                                        color: Colors.amber.withOpacity( 0.4),
-                                        blurRadius: 8,
+                                        color: Colors.amber.withOpacity( 0.3),
+                                        blurRadius: 5,
                                         offset: const Offset(0, 2),
                                       )
                                   ],
@@ -890,4 +534,3 @@ class _StatIcon extends StatelessWidget {
     );
   }
 }
->>>>>>> master

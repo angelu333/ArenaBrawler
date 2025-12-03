@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'home_screen.dart';
-<<<<<<< HEAD
-=======
 import 'intro_video_screen.dart';
->>>>>>> master
 import 'package:juego_happy/services/audio_service.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -120,11 +117,7 @@ class _LoadingScreenState extends State<LoadingScreen>
     if (mounted) {
       Navigator.pushReplacement(
         context,
-<<<<<<< HEAD
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-=======
         MaterialPageRoute(builder: (context) => const IntroVideoScreen()),
->>>>>>> master
       );
     }
   }
@@ -161,11 +154,7 @@ class _LoadingScreenState extends State<LoadingScreen>
           ),
           // Capa oscura semitransparente para mejor legibilidad
           Container(
-<<<<<<< HEAD
-            color: Colors.black.withValues(alpha: 0.4),
-=======
-            color: Colors.black.withOpacity( 0.4),
->>>>>>> master
+            color: Colors.black.withOpacity(0.4),
           ),
           // Contenido de la pantalla de carga
           SafeArea(
@@ -221,7 +210,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                               ),
                               Shadow(
                                 blurRadius: 15.0,
-                                color: Colors.orange.withValues(alpha: 0.5),
+                                color: Colors.orange.withOpacity(0.5),
                                 offset: const Offset(0, 0),
                               ),
                             ],
@@ -295,7 +284,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        Colors.white.withValues(alpha: 0.3),
+                                        Colors.white.withOpacity(0.3),
                                         Colors.transparent,
                                       ],
                                       stops: const [0.0, 0.5],
