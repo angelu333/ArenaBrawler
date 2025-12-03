@@ -117,7 +117,7 @@ class _ScoreSubmissionDialogState extends State<ScoreSubmissionDialog>
   Widget _buildInputView() {
     return Container(
       width: 500,
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A2E).withOpacity(0.9),
         borderRadius: BorderRadius.circular(30),
@@ -138,117 +138,119 @@ class _ScoreSubmissionDialogState extends State<ScoreSubmissionDialog>
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Title
-          Text(
-            '¡VICTORIA!',
-            style: TextStyle(
-              fontFamily: 'GameFont',
-              fontSize: 40,
-              fontWeight: FontWeight.w900,
-              color: Colors.yellow,
-              shadows: [
-                Shadow(
-                  color: Colors.orange.withOpacity(0.8),
-                  blurRadius: 15,
-                  offset: const Offset(0, 0),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Puntuación: ${widget.score}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 30),
-          
-          // Input Field
-          TextField(
-            controller: _nameController,
-            style: const TextStyle(color: Colors.white, fontSize: 20),
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              hintText: 'Ingresa tu nombre',
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-              filled: true,
-              fillColor: Colors.black.withOpacity(0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: const BorderSide(color: Colors.cyan, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            ),
-          ),
-          
-          if (_errorMessage != null) ...[
-            const SizedBox(height: 10),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Title
             Text(
-              _errorMessage!,
-              style: const TextStyle(
-                color: Colors.redAccent,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-          
-          const SizedBox(height: 30),
-          
-          // Save Button
-          GestureDetector(
-            onTap: _isSubmitting ? null : _submitScore,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: _isSubmitting
-                      ? [Colors.grey, Colors.grey.shade700]
-                      : [Colors.cyan, Colors.blue],
-                ),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: (_isSubmitting ? Colors.grey : Colors.cyan).withOpacity(0.5),
+              '¡VICTORIA!',
+              style: TextStyle(
+                fontFamily: 'GameFont',
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: Colors.yellow,
+                shadows: [
+                  Shadow(
+                    color: Colors.orange.withOpacity(0.8),
                     blurRadius: 15,
-                    offset: const Offset(0, 5),
+                    offset: const Offset(0, 0),
                   ),
                 ],
               ),
-              child: Center(
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : const Text(
-                        'GUARDAR LEYENDA',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'GameFont',
-                          letterSpacing: 1.5,
-                        ),
-                      ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Puntuación: ${widget.score}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            
+            // Input Field
+            TextField(
+              controller: _nameController,
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: 'Ingresa tu nombre',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                filled: true,
+                fillColor: Colors.black.withOpacity(0.5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: Colors.cyan, width: 2),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              ),
+            ),
+            
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 10),
+              Text(
+                _errorMessage!,
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+            
+            const SizedBox(height: 20),
+            
+            // Save Button
+            GestureDetector(
+              onTap: _isSubmitting ? null : _submitScore,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: _isSubmitting
+                        ? [Colors.grey, Colors.grey.shade700]
+                        : [Colors.cyan, Colors.blue],
+                  ),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_isSubmitting ? Colors.grey : Colors.cyan).withOpacity(0.5),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : const Text(
+                          'GUARDAR LEYENDA',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'GameFont',
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

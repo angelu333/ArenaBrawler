@@ -27,6 +27,8 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
   bool _isVideoReady = false;
   bool _showIntro = true;
 
+  bool _isCompleted = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,13 +46,49 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
     // Iniciar con la intro
     _fadeController.forward();
 
-    // Después de 2 segundos, iniciar transición al video
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      _initializeVideo();
+    // Iniciar la secuencia (espera + carga de video)
+    _startSequence();
+  }
+
+  void _startSequence() async {
+    // Esperar al menos 2 segundos para leer el texto
+    final minWait = Future.delayed(const Duration(milliseconds: 2000));
+    
+    // Iniciar carga del video
+    final videoLoad = _initializeVideoController();
+
+    // Esperar a que ambos terminen
+    await Future.wait([minWait, videoLoad]);
+
+    if (!mounted) return;
+
+    // Transición suave: Fade out de la intro y fade in del video
+    await _fadeController.animateTo(0.0,
+        duration: const Duration(milliseconds: 800));
+
+    if (!mounted) return;
+
+    setState(() {
+      _showIntro = false;
+    });
+
+    await _fadeController.animateTo(1.0,
+        duration: const Duration(milliseconds: 1000));
+
+    // Reproducir el video
+    _videoController.play();
+
+    // Listener para cuando termine el video
+    _videoController.addListener(() {
+      if (!_isCompleted && 
+          _videoController.value.position >= _videoController.value.duration) {
+        _isCompleted = true;
+        widget.onComplete();
+      }
     });
   }
 
-  void _initializeVideo() async {
+  Future<void> _initializeVideoController() async {
     String videoAsset = 'assets/videos/healer_victory.mp4'; // Default
 
     // Seleccionar video según el personaje
@@ -69,38 +107,20 @@ class _VictoryVideoScreenState extends State<VictoryVideoScreen>
 
     try {
       await _videoController.initialize();
-      setState(() {
-        _isVideoReady = true;
-      });
-
-      // Transición suave: Fade out de la intro y fade in del video
-      // Hacemos la transición un poco más lenta para que sea "no agresiva"
-      await _fadeController.animateTo(0.0,
-          duration: const Duration(milliseconds: 800));
-
-      setState(() {
-        _showIntro = false;
-      });
-
-      await _fadeController.animateTo(1.0,
-          duration: const Duration(milliseconds: 1000));
-
-      // Reproducir el video
-      _videoController.play();
-
-      // Listener para cuando termine el video
-      _videoController.addListener(() {
-        if (_videoController.value.position >=
-            _videoController.value.duration) {
-          widget.onComplete();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _isVideoReady = true;
+        });
+      }
     } catch (e) {
-      // Si hay error cargando el video, mostrar pantalla simple
       debugPrint('Error loading video: $e');
-      setState(() {
-        _showIntro = true;
-      });
+      // Si falla, nos quedamos en la intro pero habilitamos salir
+      if (mounted) {
+        setState(() {
+          _showIntro = true;
+          _isVideoReady = true; // Para mostrar el botón de saltar
+        });
+      }
     }
   }
 
