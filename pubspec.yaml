@@ -19,7 +19,7 @@ dependencies:
   flame: ^1.17.0
   shared_preferences: ^2.2.2
   video_player: ^2.8.2
-  audioplayers: ^5.2.1
+  audioplayers: ^6.0.0
 
 dev_dependencies:
   flutter_test:

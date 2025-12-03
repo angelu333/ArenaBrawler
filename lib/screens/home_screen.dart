@@ -1,5 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+=======
+import 'package:video_player/video_player.dart';
+>>>>>>> master
 import 'package:juego_happy/screens/character_selection_screen.dart';
 import 'package:juego_happy/screens/level_map_screen.dart';
 import 'package:juego_happy/screens/store_screen.dart';
@@ -22,6 +26,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   late AnimationController _breatheController;
   late AnimationController _particlesController;
+<<<<<<< HEAD
+=======
+  late VideoPlayerController _backgroundVideoController;
+>>>>>>> master
 
   @override
   void initState() {
@@ -40,12 +48,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 10),
     )..repeat();
+<<<<<<< HEAD
+=======
+
+    _backgroundVideoController = VideoPlayerController.asset('assets/videos/home_background.mp4')
+      ..initialize().then((_) {
+        _backgroundVideoController.setLooping(true);
+        _backgroundVideoController.play();
+        setState(() {});
+      });
+    
+    // Add listener to refresh UI when video updates (important for size/state changes)
+    _backgroundVideoController.addListener(() {
+      if (mounted) setState(() {});
+    });
+>>>>>>> master
   }
 
   @override
   void dispose() {
     _breatheController.dispose();
     _particlesController.dispose();
+<<<<<<< HEAD
+=======
+    _backgroundVideoController.dispose();
+>>>>>>> master
     super.dispose();
   }
 
@@ -119,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           // Fondo
           Positioned.fill(
+<<<<<<< HEAD
             child: Image.asset(
               'assets/images/lobby_background.png',
               fit: BoxFit.cover,
@@ -173,6 +201,64 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
+=======
+            child: _backgroundVideoController.value.isInitialized
+                ? SizedBox.expand(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _backgroundVideoController.value.size.width,
+                        height: _backgroundVideoController.value.size.height,
+                        child: VideoPlayer(_backgroundVideoController),
+                      ),
+                    ),
+                  )
+                : Image.asset(
+                    'assets/images/lobby_background.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFF1A0F2E),
+                      );
+                    },
+                  ),
+          ),
+
+          // Atmospheric gradient overlay removed for clearer video
+          // Positioned.fill(
+          //   child: Container(
+          //     decoration: BoxDecoration(
+          //       gradient: LinearGradient(
+          //         begin: Alignment.topCenter,
+          //         end: Alignment.bottomCenter,
+          //         colors: [
+          //           Colors.black.withOpacity( 0.4),
+          //           Colors.black.withOpacity( 0.1),
+          //           Colors.transparent,
+          //         ],
+          //         stops: const [0.0, 0.3, 0.7],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+
+          // Vignette effect removed for clearer video
+          // Positioned.fill(
+          //   child: Container(
+          //     decoration: BoxDecoration(
+          //       gradient: RadialGradient(
+          //         center: Alignment.center,
+          //         radius: 1.0,
+          //         colors: [
+          //           Colors.transparent,
+          //           Colors.black.withOpacity( 0.3),
+          //         ],
+          //         stops: const [0.5, 1.0],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+>>>>>>> master
 
           // Partículas
           AnimatedBuilder(
@@ -203,26 +289,42 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       boxShadow: [
                         // Main character glow
                         BoxShadow(
+<<<<<<< HEAD
                           color: Colors.cyan.withValues(alpha: 0.4),
+=======
+                          color: Colors.cyan.withOpacity( 0.4),
+>>>>>>> master
                           blurRadius: 100,
                           spreadRadius: 20,
                         ),
                         // Secondary purple glow for depth
                         BoxShadow(
+<<<<<<< HEAD
                           color: Colors.purple.withValues(alpha: 0.3),
+=======
+                          color: Colors.purple.withOpacity( 0.3),
+>>>>>>> master
                           blurRadius: 80,
                           spreadRadius: 40,
                         ),
                         // Ground shadow
                         BoxShadow(
+<<<<<<< HEAD
                           color: Colors.black.withValues(alpha: 0.6),
+=======
+                          color: Colors.black.withOpacity( 0.6),
+>>>>>>> master
                           blurRadius: 60,
                           spreadRadius: -10,
                           offset: const Offset(0, 50),
                         ),
                         // Rim light effect
                         BoxShadow(
+<<<<<<< HEAD
                           color: Colors.yellow.withValues(alpha: 0.2),
+=======
+                          color: Colors.yellow.withOpacity( 0.2),
+>>>>>>> master
                           blurRadius: 120,
                           spreadRadius: 10,
                         ),
@@ -315,12 +417,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     // Cyan glow
                     Shadow(
+<<<<<<< HEAD
                       color: Colors.cyan.withValues(alpha: 0.8),
+=======
+                      color: Colors.cyan.withOpacity( 0.8),
+>>>>>>> master
                       blurRadius: 20,
                       offset: Offset.zero,
                     ),
                     Shadow(
+<<<<<<< HEAD
                       color: Colors.cyan.withValues(alpha: 0.5),
+=======
+                      color: Colors.cyan.withOpacity( 0.5),
+>>>>>>> master
                       blurRadius: 40,
                       offset: Offset.zero,
                     ),
@@ -344,6 +454,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     iconImage: 'assets/images/icons/heroes_icon.png',
                     label: 'PERSONAJES',
                     onPressed: () async {
+<<<<<<< HEAD
+=======
+                      _backgroundVideoController.pause();
+>>>>>>> master
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -351,6 +465,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               const CharacterSelectionScreen(selectOnly: true),
                         ),
                       );
+<<<<<<< HEAD
+=======
+                      _backgroundVideoController.play();
+>>>>>>> master
                       _loadGameData();
                     },
                   ),
@@ -359,12 +477,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     iconImage: 'assets/images/icons/shop_icon.png',
                     label: 'TIENDA',
                     onPressed: () async {
+<<<<<<< HEAD
+=======
+                      _backgroundVideoController.pause();
+>>>>>>> master
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const StoreScreen(),
                         ),
                       );
+<<<<<<< HEAD
+=======
+                      _backgroundVideoController.play();
+>>>>>>> master
                       _loadGameData();
                     },
                   ),
@@ -373,12 +499,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     iconImage: 'assets/images/icons/news_icon.png',
                     label: 'MAPA',
                     onPressed: () async {
+<<<<<<< HEAD
+=======
+                      _backgroundVideoController.pause();
+>>>>>>> master
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const LevelMapScreen(),
                         ),
                       );
+<<<<<<< HEAD
+=======
+                      _backgroundVideoController.play();
+>>>>>>> master
                       _loadGameData();
                     },
                   ),
@@ -393,6 +527,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bottom: 40,
             child: _PlayButtonUnified(
               onPressed: () async {
+<<<<<<< HEAD
+=======
+                _backgroundVideoController.pause();
+>>>>>>> master
                 // Ir directamente al mapa de niveles
                 await Navigator.push(
                   context,
@@ -400,6 +538,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     builder: (context) => const LevelMapScreen(),
                   ),
                 );
+<<<<<<< HEAD
+=======
+                _backgroundVideoController.play();
+>>>>>>> master
                 _loadGameData();
               },
             ),
@@ -430,11 +572,19 @@ class ParticlesPainter extends CustomPainter {
       final colorChoice = i % 3;
       Color particleColor;
       if (colorChoice == 0) {
+<<<<<<< HEAD
         particleColor = Colors.white.withValues(alpha: 0.4);
       } else if (colorChoice == 1) {
         particleColor = Colors.cyan.withValues(alpha: 0.3);
       } else {
         particleColor = Colors.purple.withValues(alpha: 0.25);
+=======
+        particleColor = Colors.white.withOpacity( 0.4);
+      } else if (colorChoice == 1) {
+        particleColor = Colors.cyan.withOpacity( 0.3);
+      } else {
+        particleColor = Colors.purple.withOpacity( 0.25);
+>>>>>>> master
       }
 
       final paint = Paint()
@@ -446,7 +596,11 @@ class ParticlesPainter extends CustomPainter {
       // Add glow effect to some particles
       if (i % 5 == 0) {
         final glowPaint = Paint()
+<<<<<<< HEAD
           ..color = particleColor.withValues(alpha: 0.1)
+=======
+          ..color = particleColor.withOpacity( 0.1)
+>>>>>>> master
           ..style = PaintingStyle.fill;
         canvas.drawCircle(Offset(x, y), radius * 2, glowPaint);
       }
@@ -478,10 +632,17 @@ class _HeaderButton extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
+<<<<<<< HEAD
         color: Colors.black.withValues(alpha: 0.6),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.8),
+=======
+        color: Colors.black.withOpacity( 0.6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity( 0.8),
+>>>>>>> master
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -493,7 +654,11 @@ class _HeaderButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           color: color,
           border: Border.all(
+<<<<<<< HEAD
             color: Colors.white.withValues(alpha: 0.4),
+=======
+            color: Colors.white.withOpacity( 0.4),
+>>>>>>> master
             width: 3,
           ),
         ),
@@ -541,14 +706,24 @@ class _ResourceBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
+<<<<<<< HEAD
         color: Colors.black.withValues(alpha: 0.7),
         border: Border.all(
           color: Colors.black.withValues(alpha: 0.9),
+=======
+        color: Colors.black.withOpacity( 0.7),
+        border: Border.all(
+          color: Colors.black.withOpacity( 0.9),
+>>>>>>> master
           width: 4,
         ),
         boxShadow: [
           BoxShadow(
+<<<<<<< HEAD
             color: Colors.black.withValues(alpha: 0.8),
+=======
+            color: Colors.black.withOpacity( 0.8),
+>>>>>>> master
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -565,7 +740,11 @@ class _ResourceBar extends StatelessWidget {
               shape: BoxShape.circle,
               color: accentColor,
               border: Border.all(
+<<<<<<< HEAD
                 color: Colors.white.withValues(alpha: 0.5),
+=======
+                color: Colors.white.withOpacity( 0.5),
+>>>>>>> master
                 width: 2,
               ),
             ),
@@ -654,8 +833,13 @@ class _SideMenuButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             gradient: RadialGradient(
               colors: [
+<<<<<<< HEAD
                 const Color(0xFF2D3748).withValues(alpha: 0.9),
                 const Color(0xFF1A202C).withValues(alpha: 0.95),
+=======
+                const Color(0xFF2D3748).withOpacity( 0.9),
+                const Color(0xFF1A202C).withOpacity( 0.95),
+>>>>>>> master
               ],
             ),
             border: Border.all(
@@ -664,12 +848,20 @@ class _SideMenuButton extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
+<<<<<<< HEAD
                 color: Colors.black.withValues(alpha: 0.8),
+=======
+                color: Colors.black.withOpacity( 0.8),
+>>>>>>> master
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
               BoxShadow(
+<<<<<<< HEAD
                 color: Colors.cyan.withValues(alpha: 0.2),
+=======
+                color: Colors.cyan.withOpacity( 0.2),
+>>>>>>> master
                 blurRadius: 12,
                 spreadRadius: 1,
               ),
@@ -699,10 +891,17 @@ class _SideMenuButton extends StatelessWidget {
           width: 78, // Aumentado de 75 a 78
           padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 3),
           decoration: BoxDecoration(
+<<<<<<< HEAD
             color: Colors.black.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: Colors.black.withValues(alpha: 0.9),
+=======
+            color: Colors.black.withOpacity( 0.8),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: Colors.black.withOpacity( 0.9),
+>>>>>>> master
               width: 2,
             ),
           ),
@@ -741,12 +940,20 @@ class _PlayButtonUnified extends StatelessWidget {
         color: Colors.black,
         boxShadow: [
           BoxShadow(
+<<<<<<< HEAD
             color: Colors.yellow.withValues(alpha: 0.7),
+=======
+            color: Colors.yellow.withOpacity( 0.7),
+>>>>>>> master
             blurRadius: 30,
             spreadRadius: 8,
           ),
           BoxShadow(
+<<<<<<< HEAD
             color: Colors.black.withValues(alpha: 0.9),
+=======
+            color: Colors.black.withOpacity( 0.9),
+>>>>>>> master
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -770,7 +977,11 @@ class _PlayButtonUnified extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
+<<<<<<< HEAD
               color: Colors.orange.withValues(alpha: 0.5),
+=======
+              color: Colors.orange.withOpacity( 0.5),
+>>>>>>> master
               blurRadius: 15,
               spreadRadius: 2,
             ),

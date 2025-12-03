@@ -7,6 +7,7 @@ class AudioService {
   AudioService._internal();
 
   final AudioPlayer _musicPlayer = AudioPlayer();
+  final AudioPlayer _sfxPlayer = AudioPlayer();
   String? _currentTrack;
   bool _isMusicEnabled = true;
 
@@ -39,6 +40,20 @@ class AudioService {
     await _musicPlayer.setVolume(0.6);
     await _musicPlayer.resume();
   }
+
+  /// Reproducir sonido de click
+  Future<void> playClickSound() async {
+    if (!_isMusicEnabled) return;
+    // Usamos un sonido corto, si no existe el archivo no crasheará pero mostrará error en consola
+    try {
+      await _sfxPlayer.stop();
+      await _sfxPlayer.play(AssetSource('audio/sfx/button_click.ogg'), volume: 0.8);
+    } catch (e) {
+      // Ignorar si falta el archivo
+      print('Error playing sfx: $e');
+    }
+  }
+
 
   /// Detener la música
   Future<void> stopMusic() async {
@@ -74,5 +89,6 @@ class AudioService {
   /// Liberar recursos
   Future<void> dispose() async {
     await _musicPlayer.dispose();
+    await _sfxPlayer.dispose();
   }
 }

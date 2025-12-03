@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'home_screen.dart';
+<<<<<<< HEAD
+=======
+import 'intro_video_screen.dart';
+>>>>>>> master
 import 'package:juego_happy/services/audio_service.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -116,7 +120,11 @@ class _LoadingScreenState extends State<LoadingScreen>
     if (mounted) {
       Navigator.pushReplacement(
         context,
+<<<<<<< HEAD
         MaterialPageRoute(builder: (context) => const HomeScreen()),
+=======
+        MaterialPageRoute(builder: (context) => const IntroVideoScreen()),
+>>>>>>> master
       );
     }
   }
@@ -153,7 +161,11 @@ class _LoadingScreenState extends State<LoadingScreen>
           ),
           // Capa oscura semitransparente para mejor legibilidad
           Container(
+<<<<<<< HEAD
             color: Colors.black.withValues(alpha: 0.4),
+=======
+            color: Colors.black.withOpacity( 0.4),
+>>>>>>> master
           ),
           // Contenido de la pantalla de carga
           SafeArea(
