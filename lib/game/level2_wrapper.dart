@@ -28,14 +28,14 @@ class _Level2WrapperState extends State<Level2Wrapper> {
 
   void _exitGame({bool won = false}) async {
     await _gameData.addCoins(75); // Recompensa del nivel 2
-    
+
     // Si ganó, desbloquear siguiente nivel
     if (won) {
       await _gameData.completeLevel(2, 3, 1000, 60.0);
       // Desbloquear nivel 3 (Jefe Final)
       await _gameData.unlockLevel(3);
     }
-    
+
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -78,9 +78,6 @@ class _Level2WrapperState extends State<Level2Wrapper> {
           'Hud': (context, game) {
             return _buildHud();
           },
-          'AttackButton': (context, game) {
-            return _buildAttackButton();
-          },
           'DiamondCollected': (context, game) {
             return _buildDiamondMessage();
           },
@@ -94,7 +91,7 @@ class _Level2WrapperState extends State<Level2Wrapper> {
             return _buildGameOverScreen();
           },
         },
-        initialActiveOverlays: const ['Hud', 'AttackButton'],
+        initialActiveOverlays: const ['Hud'],
       ),
     );
   }
@@ -134,7 +131,9 @@ class _Level2WrapperState extends State<Level2Wrapper> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      game.hasDiamond ? 'Diamante obtenido' : 'Busca el diamante',
+                      game.hasDiamond
+                          ? 'Diamante obtenido'
+                          : 'Busca el diamante',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -155,26 +154,6 @@ class _Level2WrapperState extends State<Level2Wrapper> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAttackButton() {
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: const CircleBorder(),
-            padding: const EdgeInsets.all(24),
-            backgroundColor: Colors.red.withAlpha((0.8 * 255).round()),
-          ),
-          onPressed: () {
-            game.player.shoot();
-          },
-          child: const Icon(Icons.bolt, size: 40, color: Colors.white),
-        ),
       ),
     );
   }
@@ -236,7 +215,7 @@ class _Level2WrapperState extends State<Level2Wrapper> {
 
   Widget _buildVictoryScreen() {
     return Container(
-  color: Colors.black.withAlpha((0.8 * 255).round()),
+      color: Colors.black.withAlpha((0.8 * 255).round()),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -290,7 +269,7 @@ class _Level2WrapperState extends State<Level2Wrapper> {
 
   Widget _buildGameOverScreen() {
     return Container(
-  color: Colors.black.withAlpha((0.8 * 255).round()),
+      color: Colors.black.withAlpha((0.8 * 255).round()),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -98,7 +98,7 @@ class _LevelMapScreenState extends State<LevelMapScreen> {
 
           // 3. Botón Atrás (Sobre el cartel de madera)
           Align(
-            alignment: const Alignment(-0.92, -0.88),
+            alignment: const Alignment(-0.935, -0.95),
             child: _BackButton(
               onTap: () {
                 _audioService.playClickSound();
@@ -205,7 +205,8 @@ class _LevelButtonState extends State<_LevelButton> {
     // Si está desbloqueado, mostramos un estilo genérico o el que corresponda (ej. castillo)
     // Para simplificar, si es lock y está desbloqueado, lo mostramos como un botón "final" (rojo/púrpura)
 
-    final isLockedMode = widget.type == _LevelButtonType.lock && !widget.isUnlocked;
+    final isLockedMode =
+        widget.type == _LevelButtonType.lock && !widget.isUnlocked;
 
     return GestureDetector(
       onTapDown: (_) {
@@ -221,7 +222,8 @@ class _LevelButtonState extends State<_LevelButton> {
       },
       child: AnimatedScale(
         scale: _isPressed ? 0.90 : 1.0,
-        duration: const Duration(milliseconds: 100), // Rápido para sentir el "clic"
+        duration:
+            const Duration(milliseconds: 100), // Rápido para sentir el "clic"
         child: isLockedMode ? _buildLockSprite() : _buildLevelSprite(),
       ),
     );
@@ -358,7 +360,8 @@ class _LevelButtonState extends State<_LevelButton> {
         child: Text(
           '${widget.levelId}',
           style: TextStyle(
-            fontFamily: 'GameFont', // Asegúrate de tener esta fuente o usa una default
+            fontFamily:
+                'GameFont', // Asegúrate de tener esta fuente o usa una default
             fontSize: 28,
             fontWeight: FontWeight.w900,
             color: textColor,
@@ -396,28 +399,32 @@ class _BackButtonState extends State<_BackButton> {
         setState(() => _isPressed = false);
         widget.onTap();
       },
-          onTapCancel: () => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
       child: AnimatedScale(
         scale: _isPressed ? 0.9 : 1.0,
         duration: const Duration(milliseconds: 100),
         child: Container(
           width: 45,
           height: 45,
-          decoration: BoxDecoration(
-            color: Colors.transparent, // Transparente para ver la madera del fondo
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
             shape: BoxShape.circle,
-            // Eliminamos borde para que parezca parte del cartel
           ),
           child: const Center(
             child: Icon(
-              Icons.arrow_back,
-              color: Colors.white, // O un color crema que combine mejor
-              size: 32,
+              Icons.arrow_back_rounded,
+              color: Color(0xFFFFE082), // Cream/Gold color
+              size: 36,
               shadows: [
                 Shadow(
                   color: Colors.black,
-                  offset: Offset(1, 1),
-                  blurRadius: 2,
+                  offset: Offset(2, 2),
+                  blurRadius: 3,
+                ),
+                Shadow(
+                  color: Color(0xFF3E2723), // Dark wood shadow
+                  offset: Offset(-1, -1),
+                  blurRadius: 0,
                 ),
               ],
             ),

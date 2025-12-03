@@ -14,6 +14,6 @@ class ShootingJoystick extends JoystickComponent {
             paint: BasicPalette.red.withAlpha(100).paint(),
           ),
           margin: const EdgeInsets.only(right: 40, bottom: 40),
-          anchor: Anchor.bottomRight, // Anclar a la derecha
+          anchor: Anchor.bottomRight,
         );
 }
